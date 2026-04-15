@@ -42,7 +42,7 @@ Key things to know:
 
 1. [Terminal Command Execution](#1-terminal-command-execution) — Auto-execution, allow/deny lists, safety levels
 2. [Skills System](#2-skills-system) — Create, organize, and invoke reusable task templates
-3. [MCP Server Integration](#3-mcp-server-integration) — Connect external tools via the Model Context Protocol
+3. [MCP Server Integration](#3-mcp-server-integration) — Connect external tools via the Model Context Protocol (GitHub, Notion, Slack setup guides)
 4. [Directory-Scoped Instructions (AGENTS.md)](#4-directory-scoped-instructions-agentsmd) — Context-aware guidance per directory
 5. [Hooks](#5-hooks) — Run shell commands at workflow checkpoints
 6. [Memories & Rules](#6-memories--rules) — Persistent context across sessions
@@ -328,6 +328,146 @@ if __name__ == "__main__":
 | Return clear error messages | Cascade shows them to the user |
 | Keep tool descriptions specific | Cascade uses them to decide which tool to call |
 | Use `inputSchema` with required fields | Prevents ambiguous tool calls |
+
+---
+
+### Official MCP Server Setup Guides
+
+Step-by-step setup for popular official MCP servers in Windsurf.
+
+#### GitHub MCP Server
+
+**1. Get a GitHub Personal Access Token:**
+- Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+- Generate new token with scopes: `repo`, `read:org`, `read:user`, `issues:write`, `pull_requests:write`
+- Copy the token (starts with `ghp_`)
+
+**2. Install the server:**
+
+**Via Marketplace (easiest):**
+- Cascade panel → hammer icon → search "GitHub" → Install
+
+**Via Manual Config:**
+Add to `~/.codeium/windsurf/mcp_config.json` (global) or `.windsurf/mcp_config.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Restart Windsurf** to load the new MCP server.
+
+**4. Test it:**
+Type in Cascade: "List my recent GitHub issues" or "Create an issue in this repo titled 'Test from Windsurf'"
+
+**Available tools:** `search_repositories`, `create_issue`, `update_issue`, `list_issues`, `create_pull_request`, `list_commits`, `get_file_contents`, `create_branch`, `push_files`
+
+---
+
+#### Notion MCP Server
+
+**1. Get a Notion Integration Token:**
+- Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)
+- Create new integration → Name it "Windsurf" → Copy "Internal Integration Token"
+- Share specific Notion pages/databases with this integration (required!)
+
+**2. Install the server:**
+
+**Via Marketplace:**
+- Cascade panel → hammer icon → search "Notion" → Install
+
+**Via Manual Config:**
+```json
+{
+  "mcpServers": {
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@notion/mcp-server"],
+      "env": {
+        "NOTION_TOKEN": "secret_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Share pages with the integration:**
+- In Notion, go to the page/database you want to access
+- Click "..." → Add connections → Select your "Windsurf" integration
+- Repeat for all pages you need access to
+
+**4. Restart Windsurf** and test: "Search my Notion pages for 'project roadmap'"
+
+**Available tools:** `search_pages`, `get_page`, `create_page`, `update_page`, `query_database`, `create_database_item`
+
+---
+
+#### Slack MCP Server
+
+**1. Create a Slack App:**
+- Go to [api.slack.com/apps](https://api.slack.com/apps)
+- Create New App → From scratch → Name it "Windsurf" → Select your workspace
+- Go to OAuth & Permissions → Add scopes: `chat:write`, `channels:read`, `groups:read`, `im:read`, `mpim:read`, `users:read`, `search:read`
+- Install to Workspace → Copy "Bot User OAuth Token" (starts with `xoxb-`)
+
+**2. Install the server:**
+
+**Via Marketplace:**
+- Cascade panel → hammer icon → search "Slack" → Install
+
+**Via Manual Config:**
+```json
+{
+  "mcpServers": {
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@slack/mcp-server"],
+      "env": {
+        "SLACK_TOKEN": "xoxb-YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Invite the bot to channels:**
+- In Slack, type `/invite @Windsurf` in each channel you want it to access
+
+**4. Restart Windsurf** and test: "Send a message to #general saying 'Hello from Windsurf'"
+
+**Available tools:** `post_message`, `get_channel_history`, `search_messages`, `list_channels`, `get_user_info`
+
+---
+
+### Multi-Platform Workflows
+
+Combine MCP servers for cross-platform automation:
+
+**Example workflow:**
+```
+"Find all GitHub issues labeled 'urgent' in my repo, 
+summarize them, and post the summary to Slack #engineering"
+```
+
+**Requirements:**
+- GitHub MCP server configured
+- Slack MCP server configured
+- Both have appropriate permissions
+
+**Another example:**
+```
+"Create a Notion page documenting the architecture decisions 
+from the last 5 GitHub PRs in this repo"
+```
 
 ---
 
