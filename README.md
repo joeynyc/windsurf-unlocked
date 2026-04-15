@@ -42,13 +42,15 @@ Key things to know:
 
 1. [Terminal Command Execution](#1-terminal-command-execution) — Auto-execution, allow/deny lists, safety levels
 2. [Skills System](#2-skills-system) — Create, organize, and invoke reusable task templates
-3. [MCP Server Integration](#3-mcp-server-integration) — Connect external tools via the Model Context Protocol
+3. [MCP Server Integration](#3-mcp-server-integration) — Connect external tools via the Model Context Protocol (GitHub, Notion, Slack setup guides)
 4. [Directory-Scoped Instructions (AGENTS.md)](#4-directory-scoped-instructions-agentsmd) — Context-aware guidance per directory
 5. [Hooks](#5-hooks) — Run shell commands at workflow checkpoints
 6. [Memories & Rules](#6-memories--rules) — Persistent context across sessions
 7. [Workflows](#7-workflows) — Slash-command automations
 8. [Real-World Configurations](#8-real-world-configurations) — Production MCP servers and patterns
-9. [Troubleshooting](#9-troubleshooting) — Common issues and fixes
+9. [Model Optimization](#9-model-optimization) — Speed up Cascade with the right model selection
+10. [Custom Subagents](#10-custom-subagents) — Personality profiles for specialized tasks
+11. [Troubleshooting](#11-troubleshooting) — Common issues and fixes
 
 ---
 
@@ -326,6 +328,146 @@ if __name__ == "__main__":
 | Return clear error messages | Cascade shows them to the user |
 | Keep tool descriptions specific | Cascade uses them to decide which tool to call |
 | Use `inputSchema` with required fields | Prevents ambiguous tool calls |
+
+---
+
+### Official MCP Server Setup Guides
+
+Step-by-step setup for popular official MCP servers in Windsurf.
+
+#### GitHub MCP Server
+
+**1. Get a GitHub Personal Access Token:**
+- Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+- Generate new token with scopes: `repo`, `read:org`, `read:user`, `issues:write`, `pull_requests:write`
+- Copy the token (starts with `ghp_`)
+
+**2. Install the server:**
+
+**Via Marketplace (easiest):**
+- Cascade panel → hammer icon → search "GitHub" → Install
+
+**Via Manual Config:**
+Add to `~/.codeium/windsurf/mcp_config.json` (global) or `.windsurf/mcp_config.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Restart Windsurf** to load the new MCP server.
+
+**4. Test it:**
+Type in Cascade: "List my recent GitHub issues" or "Create an issue in this repo titled 'Test from Windsurf'"
+
+**Available tools:** `search_repositories`, `create_issue`, `update_issue`, `list_issues`, `create_pull_request`, `list_commits`, `get_file_contents`, `create_branch`, `push_files`
+
+---
+
+#### Notion MCP Server
+
+**1. Get a Notion Integration Token:**
+- Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)
+- Create new integration → Name it "Windsurf" → Copy "Internal Integration Token"
+- Share specific Notion pages/databases with this integration (required!)
+
+**2. Install the server:**
+
+**Via Marketplace:**
+- Cascade panel → hammer icon → search "Notion" → Install
+
+**Via Manual Config:**
+```json
+{
+  "mcpServers": {
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@notion/mcp-server"],
+      "env": {
+        "NOTION_TOKEN": "secret_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Share pages with the integration:**
+- In Notion, go to the page/database you want to access
+- Click "..." → Add connections → Select your "Windsurf" integration
+- Repeat for all pages you need access to
+
+**4. Restart Windsurf** and test: "Search my Notion pages for 'project roadmap'"
+
+**Available tools:** `search_pages`, `get_page`, `create_page`, `update_page`, `query_database`, `create_database_item`
+
+---
+
+#### Slack MCP Server
+
+**1. Create a Slack App:**
+- Go to [api.slack.com/apps](https://api.slack.com/apps)
+- Create New App → From scratch → Name it "Windsurf" → Select your workspace
+- Go to OAuth & Permissions → Add scopes: `chat:write`, `channels:read`, `groups:read`, `im:read`, `mpim:read`, `users:read`, `search:read`
+- Install to Workspace → Copy "Bot User OAuth Token" (starts with `xoxb-`)
+
+**2. Install the server:**
+
+**Via Marketplace:**
+- Cascade panel → hammer icon → search "Slack" → Install
+
+**Via Manual Config:**
+```json
+{
+  "mcpServers": {
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@slack/mcp-server"],
+      "env": {
+        "SLACK_TOKEN": "xoxb-YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+**3. Invite the bot to channels:**
+- In Slack, type `/invite @Windsurf` in each channel you want it to access
+
+**4. Restart Windsurf** and test: "Send a message to #general saying 'Hello from Windsurf'"
+
+**Available tools:** `post_message`, `get_channel_history`, `search_messages`, `list_channels`, `get_user_info`
+
+---
+
+### Multi-Platform Workflows
+
+Combine MCP servers for cross-platform automation:
+
+**Example workflow:**
+```
+"Find all GitHub issues labeled 'urgent' in my repo, 
+summarize them, and post the summary to Slack #engineering"
+```
+
+**Requirements:**
+- GitHub MCP server configured
+- Slack MCP server configured
+- Both have appropriate permissions
+
+**Another example:**
+```
+"Create a Notion page documenting the architecture decisions 
+from the last 5 GitHub PRs in this repo"
+```
 
 ---
 
@@ -683,7 +825,116 @@ Global MCP servers go in `~/.codeium/windsurf/mcp_config.json`. Global skills go
 
 ---
 
-## 9. Troubleshooting
+---
+
+## 9. Model Optimization
+
+### The Hidden Fast Mode
+
+Cascade has multiple models, but most users never switch from the default. **SWE 1.5** (Software Engineering model) outputs at **~950 tokens/second** — roughly 3-4x faster than Claude Sonnet.
+
+| Model | Speed | Best For |
+|-------|-------|----------|
+| **SWE 1.5** | ~950 tok/s | Simple edits, refactors, grep-style tasks |
+| **SWE 1.5 Fast** | ~950 tok/s, lower cost | Same as above, budget-optimized |
+| **Claude Sonnet 4.5** | ~250 tok/s | Complex architecture, debugging |
+| **Claude Opus 4.6** | ~150 tok/s | Deep reasoning, design decisions |
+
+### How to Trigger Specific Models
+
+Models are selected based on the complexity hint in your prompt:
+
+```
+/fast  Refactor this util file to use TypeScript
+/deep  Design a distributed caching strategy for our API
+```
+
+**Cascade interprets:**
+- Short, specific requests → SWE 1.5 (fast)
+- Complex, open-ended requests → Claude Opus (deep)
+
+### Custom Model Selector Workflow
+
+Create `.windsurf/workflows/fast.md`:
+
+```yaml
+---
+name: fast
+description: Use SWE 1.5 for quick edits and refactors. Optimize for speed.
+---
+
+# Fast Mode (SWE 1.5)
+
+Use the SWE 1.5 model for this task:
+- Make minimal changes
+- Don't over-explain
+- Just show the code
+- Skip validation phrases
+```
+
+Then type `/fast` in Cascade to trigger it.
+
+---
+
+## 10. Custom Subagents (AGENTS.md Profiles)
+
+### Beyond Directory-Scoped Instructions
+
+AGENTS.md files can define **subagent personalities** — specialized modes that Cascade switches into for specific tasks.
+
+### Example: Terse Mode Profile
+
+Create `.windsurf/agents/terse/AGENT.md`:
+
+```markdown
+---
+name: terse
+description: Ultra-direct coding mode. No validation phrases. Immediate execution.
+---
+
+# Terse Agent Profile
+
+## Personality
+- Skip throat-clearing ("That's a great idea!", "I'll help you with that")
+- Execute immediately without asking permission
+- Speed is #1 priority
+- Keep responses under 3 sentences when possible
+
+## Execution Rules
+- Never re-read files already in context
+- Batch tool calls for parallel execution
+- If ambiguous, pick the most likely interpretation and proceed
+- Show code changes directly, don't describe them
+
+## Communication Style
+- Direct statements only
+- No bullet point summaries of what you'll do
+- No apologies for brevity
+
+## Use When
+- The user says "quick fix", "just do it", "make it happen"
+- Task is straightforward (refactor, rename, move)
+- User seems frustrated with verbosity
+```
+
+### Activating Subagents
+
+Type `@terse` in Cascade to switch to that personality.
+
+**Pro tip:** Combine with model selector for `@terse /fast` — fastest possible execution mode.
+
+### Other Useful Profiles
+
+| Profile | Use Case |
+|---------|----------|
+| `security` | Code review focused on vulnerabilities |
+| `docs` | Writing documentation, comments, READMEs |
+| `test` | Generating comprehensive test coverage |
+| `optimize` | Performance-focused refactoring |
+
+---
+
+## 11. Troubleshooting
 
 ### "Connecting to Language Server" Stuck
 
@@ -738,6 +989,8 @@ Cascade shows "Connecting to language server..." and won't respond:
 | Hooks | .windsurf/hooks.json | Startup load | System → User → Workspace |
 | Memories & Rules | Cascade UI | Session-persist | User only |
 | Workflows | .windsurf/workflows/*.md | Auto-scan | Workspace only |
+| Model selector | Prompt hints (`/fast`, `/deep`) | Contextual | Auto-detected |
+| Subagent profiles | .windsurf/agents/*/AGENT.md | @mention | Workspace only |
 
 ---
 
