@@ -976,6 +976,31 @@ Cascade shows "Connecting to language server..." and won't respond:
 - Windows: use `"powershell"` key in hooks.json for cross-shell compatibility
 - MCP whitelist regex gotchas: test your patterns against actual command strings
 
+### Cascade Gets Stuck on a Step
+
+Cascade sometimes hangs on a single step — spinning forever without progressing or erroring. Two things help:
+
+**Prevention: Set timeouts in AGENTS.md**
+
+Add this to your root `AGENTS.md` to prevent hangs:
+
+```markdown
+## Execution Rules
+- If a command takes more than 10 seconds with no output, kill it and try a different approach.
+- If you've been on the same step for more than 60 seconds, stop and explain what's blocking you.
+- Never retry the exact same command that just failed. Diagnose first.
+```
+
+**Recovery: Interrupt and force self-diagnosis**
+
+When Cascade is stuck, don't just restart. Interrupt it (click the stop/interrupt button) and send a message like:
+
+> Why are you stuck on this step? We need to learn what makes you get stuck and permanently solve it. Whatever is causing this, figure it out, save the solution to your memory so you never hit this again.
+
+This works because Cascade can introspect on what went wrong and save the fix. After a few rounds of this, it stops making the same mistakes. It's iterative self-improvement — each stuck moment becomes a permanent lesson if you force the diagnosis.
+
+**Why this matters:** Most people restart when Cascade hangs and lose the learning opportunity. Interrupting + forcing self-diagnosis turns every failure into a durable fix.
+
 ---
 
 ## Feature Matrix
