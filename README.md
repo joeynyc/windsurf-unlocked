@@ -48,7 +48,9 @@ Key things to know:
 6. [Memories & Rules](#6-memories--rules) — Persistent context across sessions
 7. [Workflows](#7-workflows) — Slash-command automations
 8. [Real-World Configurations](#8-real-world-configurations) — Production MCP servers and patterns
-9. [Troubleshooting](#9-troubleshooting) — Common issues and fixes
+9. [Model Optimization](#9-model-optimization) — Speed up Cascade with the right model selection
+10. [Custom Subagents](#10-custom-subagents) — Personality profiles for specialized tasks
+11. [Troubleshooting](#11-troubleshooting) — Common issues and fixes
 
 ---
 
@@ -683,7 +685,116 @@ Global MCP servers go in `~/.codeium/windsurf/mcp_config.json`. Global skills go
 
 ---
 
-## 9. Troubleshooting
+---
+
+## 9. Model Optimization
+
+### The Hidden Fast Mode
+
+Cascade has multiple models, but most users never switch from the default. **SWE 1.5** (Software Engineering model) outputs at **~950 tokens/second** — roughly 3-4x faster than Claude Sonnet.
+
+| Model | Speed | Best For |
+|-------|-------|----------|
+| **SWE 1.5** | ~950 tok/s | Simple edits, refactors, grep-style tasks |
+| **SWE 1.5 Fast** | ~950 tok/s, lower cost | Same as above, budget-optimized |
+| **Claude Sonnet 4.5** | ~250 tok/s | Complex architecture, debugging |
+| **Claude Opus 4.6** | ~150 tok/s | Deep reasoning, design decisions |
+
+### How to Trigger Specific Models
+
+Models are selected based on the complexity hint in your prompt:
+
+```
+/fast  Refactor this util file to use TypeScript
+/deep  Design a distributed caching strategy for our API
+```
+
+**Cascade interprets:**
+- Short, specific requests → SWE 1.5 (fast)
+- Complex, open-ended requests → Claude Opus (deep)
+
+### Custom Model Selector Workflow
+
+Create `.windsurf/workflows/fast.md`:
+
+```yaml
+---
+name: fast
+description: Use SWE 1.5 for quick edits and refactors. Optimize for speed.
+---
+
+# Fast Mode (SWE 1.5)
+
+Use the SWE 1.5 model for this task:
+- Make minimal changes
+- Don't over-explain
+- Just show the code
+- Skip validation phrases
+```
+
+Then type `/fast` in Cascade to trigger it.
+
+---
+
+## 10. Custom Subagents (AGENTS.md Profiles)
+
+### Beyond Directory-Scoped Instructions
+
+AGENTS.md files can define **subagent personalities** — specialized modes that Cascade switches into for specific tasks.
+
+### Example: Terse Mode Profile
+
+Create `.windsurf/agents/terse/AGENT.md`:
+
+```markdown
+---
+name: terse
+description: Ultra-direct coding mode. No validation phrases. Immediate execution.
+---
+
+# Terse Agent Profile
+
+## Personality
+- Skip throat-clearing ("That's a great idea!", "I'll help you with that")
+- Execute immediately without asking permission
+- Speed is #1 priority
+- Keep responses under 3 sentences when possible
+
+## Execution Rules
+- Never re-read files already in context
+- Batch tool calls for parallel execution
+- If ambiguous, pick the most likely interpretation and proceed
+- Show code changes directly, don't describe them
+
+## Communication Style
+- Direct statements only
+- No bullet point summaries of what you'll do
+- No apologies for brevity
+
+## Use When
+- The user says "quick fix", "just do it", "make it happen"
+- Task is straightforward (refactor, rename, move)
+- User seems frustrated with verbosity
+```
+
+### Activating Subagents
+
+Type `@terse` in Cascade to switch to that personality.
+
+**Pro tip:** Combine with model selector for `@terse /fast` — fastest possible execution mode.
+
+### Other Useful Profiles
+
+| Profile | Use Case |
+|---------|----------|
+| `security` | Code review focused on vulnerabilities |
+| `docs` | Writing documentation, comments, READMEs |
+| `test` | Generating comprehensive test coverage |
+| `optimize` | Performance-focused refactoring |
+
+---
+
+## 11. Troubleshooting
 
 ### "Connecting to Language Server" Stuck
 
@@ -738,6 +849,8 @@ Cascade shows "Connecting to language server..." and won't respond:
 | Hooks | .windsurf/hooks.json | Startup load | System → User → Workspace |
 | Memories & Rules | Cascade UI | Session-persist | User only |
 | Workflows | .windsurf/workflows/*.md | Auto-scan | Workspace only |
+| Model selector | Prompt hints (`/fast`, `/deep`) | Contextual | Auto-detected |
+| Subagent profiles | .windsurf/agents/*/AGENT.md | @mention | Workspace only |
 
 ---
 
