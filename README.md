@@ -1,6 +1,6 @@
 # Windsurf Unlocked
 
-> **Tested on Windsurf 1.9600.41 — April 2026** · The community power-user bible for Cascade
+> **Tested on Windsurf 2.0.50 — April 2026** · The community power-user bible for Cascade, Agent Command Center, and Devin-in-Windsurf
 
 ### Every feature Cascade ships that most people aren't using — configured properly
 
@@ -10,11 +10,32 @@
 
 ## What This Guide Covers
 
-Windsurf's Cascade ships with powerful autonomous features — command execution, skills, MCP integration, hooks, directory-scoped instructions, workflows, and a memory system. Most of them are buried in config files or undocumented settings.
+Windsurf 2.0 shipped on **April 15, 2026** — hours after the first draft of this guide went up. It's the biggest single release Cascade has ever had: a full Agent Command Center, Spaces, and Devin delegation straight from the editor, layered on top of the already-deep autonomous feature set (skills, MCP, hooks, worktrees, Arena Mode, hooks, memories).
 
-This guide shows you how to configure all of them properly, connect them to real tools, and build production workflows on top of them.
+Cascade now has most of the "harness" capabilities that tools like **Hermes**, **OpenClaw**, and **Claude Code** charge you to assemble yourself — graph-aware memory, persistent plans, parallel agents, cloud delegation, observability hooks, multi-provider model selection — and with **SWE 1.6 Fast** on Cerebras at 950 tok/s it runs at a speed that makes those harnesses feel slow and expensive.
+
+This guide shows you how to configure every surface properly, wire them into real tools, and build production workflows that rival anything you'd get from a bespoke harness.
 
 **Not a guide to build features Windsurf lacks. A guide to unlock what's already there.**
+
+---
+
+## What's New in Windsurf 2.0 (April 2026)
+
+If the last time you looked at Windsurf was 1.9 or earlier, the big changes are:
+
+| New in 2.0 | Why it matters |
+|------------|----------------|
+| **Agent Command Center** | Kanban-style view of every agent you have running — local Cascade and cloud Devin — in one place. |
+| **Spaces** | Group agent sessions, PRs, files, and shared context under a single task. Agents spawned inside a Space inherit the Space's context automatically. |
+| **Devin in Windsurf** | Cloud agent, full VM, desktop + browser + computer-use, included with every self-serve plan. Up to **$50 in extra usage** credits on first GitHub connect. |
+| **Windsurf Browser** | Chromium-based browser integrated into the editor with a Cascade tool that reads page contents (replaces the old browser-preview-only flow). |
+| **Refreshed Cascade sidebar** | Faster initial load, better `.gitignore` / `.codeiumignore` handling. |
+| **SWE 1.6 + SWE 1.6 Fast** | New default SWE model, 10%+ better on SWE-Bench Pro, parallel-tool-call happy. 950 tok/s on Cerebras via SWE 1.6 Fast. **Free for everyone for 3 months.** |
+| **Adaptive model router** | One slot in the model picker that picks the right model per-task at a fixed per-token rate. Promo: 0.50 USD / 1M input, 2 USD / 1M output, 0.10 USD / 1M cache read. |
+| **Pricing-aware model picker** | Per-model input/output/cache-read rates visible inline. Prompt cache timer in the context-window indicator. Token counts on every response card. |
+
+Bumping to 2.0 is worth it for the Agent Command Center alone, but the sleeper feature is that **Cascade now streams into the Agent Command Center in real time and Devin sessions live alongside local sessions in the same Kanban** — no more context-switching between browser tabs and editor.
 
 ---
 
@@ -22,7 +43,7 @@ This guide shows you how to configure all of them properly, connect them to real
 
 ### Install Windsurf
 
-Download at [windsurf.com](https://windsurf.com) — available for Windows, Mac, and Linux.
+Download at [windsurf.com](https://windsurf.com) — available for Windows, Mac, and Linux. Linux ARM64 is now a first-class client as of Feb 2026 (deb + rpm).
 
 > **Get $10 in free credits** — use this referral link to sign up: **[windsurf.com/refer?referral_code=kowwopt506rq1907](https://windsurf.com/refer?referral_code=kowwopt506rq1907)**
 > You get $10 in credits, I get $10 in credits. Win-win.
@@ -31,30 +52,175 @@ Download at [windsurf.com](https://windsurf.com) — available for Windows, Mac,
 
 Current plans: **Free** / **Pro** / **Teams** / **Max** — see [windsurf.com/pricing](https://windsurf.com/pricing) for latest details.
 
-Key things to know:
-- **SWE 1.6 is free** for all users right now
-- **SWE 1.6 Fast** is extremely low cost — use it freely without thinking about tokens
-- There's a **free trial** to test everything before committing
+Key things to know right now:
+- **SWE 1.6 is free for everyone** for the next 3 months (Fireworks, 200 tok/s)
+- **SWE 1.6 Fast** is free for paying users (Cerebras, 950 tok/s) — use it freely without thinking about tokens
+- **Adaptive** model is available to every self-serve plan; it draws down quota at a fixed per-token rate regardless of which underlying model it picks
+- **Devin in Windsurf** is included in Pro/Max/Teams, drawing from the same Windsurf quota
+- New GitHub → Devin connection grants up to **$50 in extra usage** credits
 
 ---
 
 ## Table of Contents
 
-1. [Terminal Command Execution](#1-terminal-command-execution) — Auto-execution, allow/deny lists, safety levels
-2. [Skills System](#2-skills-system) — Create, organize, and invoke reusable task templates
-3. [MCP Server Integration](#3-mcp-server-integration) — Connect external tools via the Model Context Protocol (GitHub, Notion, Slack setup guides)
-4. [Directory-Scoped Instructions (AGENTS.md)](#4-directory-scoped-instructions-agentsmd) — Context-aware guidance per directory
-5. [Hooks](#5-hooks) — Run shell commands at workflow checkpoints
-6. [Memories & Rules](#6-memories--rules) — Persistent context across sessions
-7. [Workflows](#7-workflows) — Slash-command automations
-8. [Real-World Configurations](#8-real-world-configurations) — Production MCP servers and patterns
-9. [Model Optimization](#9-model-optimization) — Speed up Cascade with the right model selection
-10. [Custom Subagents](#10-custom-subagents) — Personality profiles for specialized tasks
-11. [Troubleshooting](#11-troubleshooting) — Common issues and fixes
+1. [Cascade Modes: Code / Plan / Ask](#1-cascade-modes-code--plan--ask) — When to use each, plan files, implement handoff
+2. [Agent Command Center & Spaces](#2-agent-command-center--spaces) — Multi-agent Kanban, task-level grouping, context inheritance
+3. [Devin in Windsurf — Cloud Delegation](#3-devin-in-windsurf--cloud-delegation) — When to hand off, planning workflow, pricing model
+4. [Terminal Command Execution](#4-terminal-command-execution) — Auto-execution, allow/deny lists, enterprise policies
+5. [Skills System](#5-skills-system) — Progressive disclosure, bundled resources, system-level skills
+6. [MCP Server Integration](#6-mcp-server-integration) — Marketplace, OAuth, tool toggling, custom registries, whitelist regex
+7. [Directory-Scoped Instructions (AGENTS.md)](#7-directory-scoped-instructions-agentsmd) — Context per directory
+8. [Hooks](#8-hooks) — Every hook point including `post_cascade_response_with_transcript` and `post_setup_worktree`
+9. [Memories & Rules](#9-memories--rules) — Persistent context + the `rules_applied` telemetry trick
+10. [Workflows](#10-workflows) — Slash-command automations
+11. [Worktrees — Parallel Cascade](#11-worktrees--parallel-cascade) — Isolated sessions, post-setup hook, cleanup
+12. [Arena Mode — Side-by-Side Models](#12-arena-mode--side-by-side-models) — Battle Groups, worktree isolation, converge workflow
+13. [Web Search & Windsurf Browser](#13-web-search--windsurf-browser) — `@web`, `@docs`, URL parsing, the 2.0 in-editor browser
+14. [App Deploys — One-Click Netlify](#14-app-deploys--one-click-netlify) — Public URLs, team deploys, claiming
+15. [Editor-Layer AI: DeepWiki, Codemaps, Vibe and Replace](#15-editor-layer-ai-deepwiki-codemaps-vibe-and-replace) — Hover explanations, shareable code maps, AI find-replace
+16. [Model Optimization — SWE 1.6, Adaptive, Battle Groups](#16-model-optimization--swe-16-adaptive-battle-groups) — Which model, when, and how to route
+17. [Custom Subagents](#17-custom-subagents) — Personality profiles for specialized tasks
+18. [Real-World Configurations](#18-real-world-configurations) — Production MCP servers and patterns
+19. [Harness Parity: Hermes/OpenClaw Features in Cascade](#19-harness-parity-hermesopenclaw-features-in-cascade) — Graph RAG, vault memory, auto-capture, multi-provider, Telegram, observability — all inside Windsurf
+20. [Troubleshooting](#20-troubleshooting) — Common issues and fixes
+21. [Feature Matrix](#feature-matrix) — Everything at a glance
 
 ---
 
-## 1. Terminal Command Execution
+## 1. Cascade Modes: Code / Plan / Ask
+
+Cascade has three **modes**, toggled with `⌘+.` / `Ctrl+.` or the dropdown under the input box. Most people only ever use one. Using all three correctly is the single biggest productivity unlock in Cascade.
+
+| Mode | Use case | Tools |
+|------|----------|-------|
+| **Code** | Features, refactors, bug fixes | All tools enabled — writes files, runs commands, installs deps |
+| **Plan** | Any non-trivial task | All tools enabled, but produces a markdown plan instead of code |
+| **Ask** | Learning, questions, code explanations | Search tools only — will not modify anything |
+
+### Plan Mode — The Underused Superpower
+
+Plan Mode doesn't just "plan", it:
+- Explores your codebase first to understand current state
+- Asks clarifying questions (use `megaplan` in the input for a more aggressive version that asks many more)
+- Offers multiple implementation options with an interactive picker
+- Writes the final plan to `~/.windsurf/plans/<name>.md`
+
+Why the on-disk plan matters:
+- **It persists across sessions.** If implementation goes sideways, open a fresh session, `@`-mention the plan, and continue from scratch — no re-explaining.
+- **It's shareable.** Commit the plan file to PRs for review before code lands.
+- **Devin can pick it up.** Hand the plan to Devin (see [Section 3](#3-devin-in-windsurf--cloud-delegation)) for long-running execution.
+
+### Implement Handoff
+
+When a plan is ready, click **Implement** on the plan file. Cascade automatically switches to Code Mode and begins executing against the plan. You don't lose the markdown — it stays at `~/.windsurf/plans/` so you can revisit.
+
+### Pro Pattern
+
+```
+User: /plan Implement a rate limiter for /api/auth/* that survives process restarts
+Cascade (Plan Mode): <asks 3-4 clarifying questions>
+Cascade: <writes ~/.windsurf/plans/auth-rate-limiter.md with 3 options>
+User: <picks option 2, clicks Implement>
+Cascade (Code Mode): <executes the plan, checkpoints after each step>
+```
+
+Type `megaplan` to trigger the advanced form that asks *more* clarifying questions — use it for architecture-level work where getting the design wrong is expensive.
+
+---
+
+## 2. Agent Command Center & Spaces
+
+### The New Home Screen for Cascade
+
+The Agent Command Center (introduced in 2.0) is a Kanban-style surface inside Windsurf showing every agent you have running — local Cascade sessions and cloud Devin sessions — organized by status.
+
+**What's on the board:**
+- **Local agents** — Cascade sessions running in your editor
+- **Cloud agents** — Devin sessions running on their own VMs
+- Columns are grouped by status: in-flight, needs review, blocked, done
+
+You open it from the sidebar without leaving the editor. It doesn't replace the editor pane — you can always jump back into any session and take over manually for last-mile edits.
+
+### Spaces: Task-Level Context Grouping
+
+A **Space** bundles everything for a single task or project:
+- Agent sessions (Cascade + Devin)
+- Pull requests
+- Files
+- Project-level context shared across sessions
+
+**Why Spaces matter:** when you create a new agent inside a Space, it **inherits everything the Space already knows**. No re-explaining the project. No re-attaching files. A new Devin session inside an "Auth Rewrite" Space knows about all the PRs, files, and prior agent trajectories in that Space.
+
+### Creating a Space
+
+Three ways:
+- **Drag-drop** — drag a session onto another session in the sidebar to group them
+- **Split pane** — `Cmd/Ctrl+\` splits the current pane, click **New Session** in the empty half; new session inherits Space context
+- **`Cmd/Ctrl+T`** — opens a new session inside the current Space
+
+Every session is technically its own Space by default, even if you don't see it that way. You can promote single sessions into shared Spaces whenever it's useful.
+
+### Recommended Workflow
+
+```
+1. New Space: "Payments V2 Migration"
+   - Drop the RFC, architecture doc, and current payments folder in as context
+2. Plan Mode session (local Cascade) → writes plan.md
+3. Hand the plan to Devin Cloud → handles migration over ~30 min on its own VM
+4. Review Devin's PR from the Kanban without leaving the editor
+5. Local Cascade in the same Space handles follow-up bugfixes — inherits everything
+```
+
+Switching between Spaces is identical to switching tasks — except every task now has a **team of agents** inside it.
+
+---
+
+## 3. Devin in Windsurf — Cloud Delegation
+
+Windsurf 2.0 integrates **[Devin](https://devin.ai)** directly into the editor. Devin is a fully autonomous cloud agent that runs on its own VM with desktop, browser, and computer-use. You delegate work with one click, walk away, close your laptop, come back later to a PR.
+
+### What Devin Handles Well
+
+Tasks that are either *long-running* or *best done outside your local environment*:
+- Test migrations across dozens of files
+- Deployments that require live external systems
+- Framework upgrades (Next 14 → 15, React 18 → 19, etc.)
+- CI/CD debugging where Devin can replay the failing job on its VM
+- Browser-driven testing and scraping tasks (computer-use)
+- Anything involving overnight runs or long compile/build loops
+
+### Pricing
+
+Devin is included with every self-serve Windsurf plan (Pro / Max / Teams). It draws from your **existing Windsurf quota** rather than being billed separately. New GitHub connections get up to **$50 in extra usage** credits for first-time Devin Cloud use.
+
+Enterprise accounts have Devin Cloud **disabled by default** — admins need to enable it in org settings if the org has also purchased Cognition Platform.
+
+### The Delegate Flow
+
+```
+1. Start a local Cascade session in Plan Mode
+2. Cascade writes a plan to ~/.windsurf/plans/feature.md
+3. Click "Delegate to Devin" on the plan file
+4. Devin spins up its VM, picks up the plan, starts executing
+5. Devin session appears as a new card in the Agent Command Center
+6. You keep coding locally OR close your laptop
+7. Devin opens a PR when done; review it from inside Windsurf
+```
+
+This is the workflow that actually reaches harness-parity with things like Hermes' orchestrator/worker pattern or OpenClaw's sub-agent model — but without running the infrastructure yourself.
+
+### When NOT to delegate
+
+- The task is small (< 15 min locally with Cascade)
+- You want tight iteration — Cascade's local feedback loop is faster
+- Sensitive / regulated code that shouldn't leave your environment (though Devin runs on isolated VMs, check your org's policy)
+- Pure-frontend tasks where visual iteration matters
+
+For everything else, delegate and let Devin grind while you sleep.
+
+---
+
+## 4. Terminal Command Execution
 
 ### The UI Controls (Start Here)
 
@@ -69,6 +235,10 @@ Cascade's terminal controls are primarily **UI-driven**, not JSON config. This i
 | Deny list | Regex patterns | Commands that always require confirmation |
 
 These controls appear in the Cascade panel under the three-dots menu. Most users configure command execution here — hooks add additional guardrails on top.
+
+### Enterprise Allow/Deny Lists
+
+As of Jan 2026, **enterprise admins** can set organization-wide allow and deny lists that override user-level settings. If you're on Teams/Enterprise, check the admin dashboard — you may already have inherited policies you can layer personal rules on top of. On Windows, admins can enforce restrictions via Group Policy.
 
 ### Editor Settings
 
@@ -87,11 +257,11 @@ These VS Code-level settings reduce friction:
 
 ### Pre-Run Command Hook
 
-For audit logging or command blocking, use the `pre_run_command` hook (see [Section 5](#5-hooks)).
+For audit logging or command blocking, use the `pre_run_command` hook (see [Section 8](#8-hooks)).
 
 ---
 
-## 2. Skills System
+## 5. Skills System
 
 ### How Skills Work
 
@@ -104,7 +274,27 @@ Windsurf auto-discovers skills from multiple locations:
 | `.agents/skills/<name>/SKILL.md` | Workspace (alias) | Cross-tool compatibility |
 | `.claude/skills/<name>/SKILL.md` | Workspace (alias) | Cross-tool compatibility |
 
-Each skill is a markdown file with YAML frontmatter. Cascade matches skills to tasks by the `description` field.
+### Progressive Disclosure — Why Skill Scaling Works
+
+Cascade uses **progressive disclosure**: only the skill's `name` and `description` are in context by default. The full `SKILL.md` body and any supporting files are loaded **only when Cascade decides to invoke the skill** (or when you `@mention` it).
+
+This means you can define **hundreds of skills** without blowing up your context window. The only thing the model sees upfront is a compact index of `{name, description}` pairs.
+
+**Consequence:** your `description` field is doing the work of a full tool spec. Treat it as advertising copy the model reads when deciding whether to pull the skill in. Be specific, action-oriented, and mention the trigger conditions.
+
+### Skill Directory Layout with Bundled Resources
+
+Skills aren't just a single markdown file — you can bundle scripts, templates, and checklists alongside `SKILL.md` and reference them in the body. Cascade gets access to everything in the skill folder when the skill is invoked.
+
+```
+.windsurf/skills/deploy-to-production/
+├── SKILL.md
+├── deployment-checklist.md
+├── rollback-procedure.md
+├── scripts/
+│   └── health-check.sh
+└── config-template.yaml
+```
 
 ### Creating a Skill
 
@@ -113,7 +303,7 @@ Each skill is a markdown file with YAML frontmatter. Cascade matches skills to t
 ```yaml
 ---
 name: run-tests
-description: Run the project test suite and report results
+description: Run the project test suite, parse failures, suggest fixes. Use when the user says "run tests", "check tests", or after any implementation change.
 ---
 
 # Run Tests
@@ -135,7 +325,7 @@ description: Run the project test suite and report results
 ```yaml
 ---
 name: deploy-check
-description: Pre-deployment validation checklist
+description: Pre-deployment validation checklist. Runs tests, secret scan, import resolution, and .env.example coverage. Use before any deploy, merge-to-main, or release.
 ---
 
 # Deploy Check
@@ -152,22 +342,27 @@ description: Pre-deployment validation checklist
 
 - **Auto-invocation:** Cascade matches your request to skill descriptions automatically
 - **Manual:** Type `@skill-name` in the Cascade chat
-- **UI:** Cascade menu → Skills icon to browse available skills
+- **UI:** Cascade panel → three-dots menu → Skills to browse, create, and edit
 - **In workflows:** Reference skills by name in workflow steps
+
+### System-Level Skills (Enterprise / MDM)
+
+As of March 2026, enterprise admins can ship system-level `SKILL.md` definitions through MDM-managed configs. Teams get a baseline skill library without needing each developer to check files into their repo.
 
 ### Tips
 
 - Keep descriptions specific and action-oriented ("Run tests and report failures" not "Testing stuff")
+- Include trigger phrases in the description — Cascade uses it for matching
 - One skill = one atomic task. Chain skills via workflows for complex tasks
 - Use the global path (`~/.codeium/windsurf/skills/`) for skills you want in every project
 
 ---
 
-## 3. MCP Server Integration
+## 6. MCP Server Integration
 
 ### The Easiest Way
 
-Cascade panel → hammer icon → search the MCP marketplace → install. No JSON needed.
+Cascade panel → **MCPs** icon in the top right menu → browse the Marketplace → **Install**. No JSON needed. Official MCPs show a blue checkmark indicating they're maintained by the parent service.
 
 ### Manual Configuration
 
@@ -187,9 +382,9 @@ For custom servers or env-specific setups, edit `mcp_config.json`:
     },
     "github": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": ["-y", "@github/github-mcp-server"],
       "env": {
-        "GITHUB_TOKEN": "ghp_xxxxxxxxxxxx"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_xxxxxxxxxxxx"
       }
     },
     "postgres": {
@@ -203,9 +398,21 @@ For custom servers or env-specific setups, edit `mcp_config.json`:
 }
 ```
 
-Windsurf supports three MCP transports: **stdio** (most common), **HTTP**, and **SSE**.
+Windsurf supports three MCP transports: **stdio** (most common), **Streamable HTTP**, and **SSE**. For HTTP servers the URL should point at the MCP endpoint, e.g. `https://your-server.com/mcp`.
 
-You can also discover and install MCP servers via the **Marketplace** (hammer icon in the Cascade panel).
+### OAuth — Auto-Trigger for HTTP/SSE
+
+When you add an HTTP or SSE MCP server that requires OAuth, Windsurf automatically opens the login flow instead of failing silently. Added in Feb 2026 — this was a huge source of friction before.
+
+### The 100-Tool Limit
+
+Cascade enforces a ceiling of **100 total tools** at any given time across all enabled MCP servers. If you install a bunch of servers and hit the ceiling, you can toggle individual tools on/off from each MCP's settings page (Cascade panel → MCPs icon → click the server → toggle specific tools).
+
+This matters a lot with fat servers like GitHub, Linear, Slack, Notion — each can expose 30+ tools individually. Disable the ones you don't need; keep your tool budget for the high-leverage stuff.
+
+### MCP Whitelist (Auto-Approval Regex)
+
+For MCP tools you use constantly (and trust), configure auto-approval via regex so Cascade doesn't stop and ask each call. Matches against the full tool call string. Use anchored, narrow patterns — don't blanket-allow write tools.
 
 ### Building a Custom MCP Server
 
@@ -319,6 +526,15 @@ if __name__ == "__main__":
 }
 ```
 
+### Admin Controls & Custom Registries
+
+Teams/Enterprise admins can:
+- Point Cascade at a **custom MCP registry** instead of the public Marketplace
+- Configure org-wide MCP whitelists and defaults via the cloud dashboard
+- Pre-install MCP servers for every user in the org
+
+See the admin docs in your Teams settings for details.
+
 ### MCP Server Quality Rules
 
 | Rule | Why |
@@ -328,6 +544,7 @@ if __name__ == "__main__":
 | Return clear error messages | Cascade shows them to the user |
 | Keep tool descriptions specific | Cascade uses them to decide which tool to call |
 | Use `inputSchema` with required fields | Prevents ambiguous tool calls |
+| Keep total tool count per server low | Cascade's 100-tool ceiling is shared across all servers |
 
 ---
 
@@ -345,7 +562,7 @@ Step-by-step setup for popular official MCP servers in Windsurf.
 **2. Install the server:**
 
 **Via Marketplace (easiest):**
-- Cascade panel → hammer icon → search "GitHub" → Install
+- Cascade panel → MCPs icon → search "GitHub" → Install
 
 **Via Manual Config:**
 Add to `~/.codeium/windsurf/mcp_config.json` (global) or `.windsurf/mcp_config.json` (project):
@@ -357,7 +574,7 @@ Add to `~/.codeium/windsurf/mcp_config.json` (global) or `.windsurf/mcp_config.j
       "command": "npx",
       "args": ["-y", "@github/github-mcp-server"],
       "env": {
-        "GITHUB_TOKEN": "ghp_YOUR_TOKEN_HERE"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_YOUR_TOKEN_HERE"
       }
     }
   }
@@ -383,7 +600,7 @@ Type in Cascade: "List my recent GitHub issues" or "Create an issue in this repo
 **2. Install the server:**
 
 **Via Marketplace:**
-- Cascade panel → hammer icon → search "Notion" → Install
+- Cascade panel → MCPs icon → search "Notion" → Install
 
 **Via Manual Config:**
 ```json
@@ -422,7 +639,7 @@ Type in Cascade: "List my recent GitHub issues" or "Create an issue in this repo
 **2. Install the server:**
 
 **Via Marketplace:**
-- Cascade panel → hammer icon → search "Slack" → Install
+- Cascade panel → MCPs icon → search "Slack" → Install
 
 **Via Manual Config:**
 ```json
@@ -454,7 +671,7 @@ Combine MCP servers for cross-platform automation:
 
 **Example workflow:**
 ```
-"Find all GitHub issues labeled 'urgent' in my repo, 
+"Find all GitHub issues labeled 'urgent' in my repo,
 summarize them, and post the summary to Slack #engineering"
 ```
 
@@ -465,13 +682,13 @@ summarize them, and post the summary to Slack #engineering"
 
 **Another example:**
 ```
-"Create a Notion page documenting the architecture decisions 
+"Create a Notion page documenting the architecture decisions
 from the last 5 GitHub PRs in this repo"
 ```
 
 ---
 
-## 4. Directory-Scoped Instructions (AGENTS.md)
+## 7. Directory-Scoped Instructions (AGENTS.md)
 
 ### How It Works
 
@@ -528,7 +745,7 @@ Place an `AGENTS.md` file in any directory. Cascade reads it automatically when 
 
 ---
 
-## 5. Hooks
+## 8. Hooks
 
 ### Configuration
 
@@ -539,7 +756,7 @@ Hooks are defined at three levels (system → user → workspace), merged in pri
 | `~/.codeium/windsurf/hooks.json` | User (global — personal defaults for all projects) |
 | `.windsurf/hooks.json` | Workspace (project-specific) |
 
-User-level hooks are perfect for personal guardrails (secret detection, linting, notifications) that apply everywhere.
+Enterprise admins can distribute hooks through the cloud dashboard; those hooks take effect org-wide and workspace hooks stack on top.
 
 **Official format:**
 
@@ -584,7 +801,10 @@ User-level hooks are perfect for personal guardrails (secret detection, linting,
 | `pre_write_code` / `post_write_code` | Before/after writing to a file | `tool_info` with file path, agent action, trajectory ID |
 | `pre_run_command` / `post_run_command` | Before/after terminal command | `tool_info` with command string |
 | `pre_mcp_tool_use` / `post_mcp_tool_use` | Before/after MCP tool call | `tool_info` with tool name, args |
-| `pre_user_prompt` / `post_cascade_response` | Before user msg / after response | `tool_info` with content |
+| `pre_user_prompt` | Before user's message is sent | prompt contents |
+| `post_cascade_response` | After each assistant response | response metadata + `rules_applied` array |
+| `post_cascade_response_with_transcript` | After each response, with full transcript | full conversation transcript |
+| `post_setup_worktree` | After a new worktree is created | runs inside the worktree dir, `$ROOT_WORKSPACE_PATH` available |
 
 ### Hook Contract
 
@@ -642,15 +862,87 @@ if __name__ == "__main__":
     main()
 ```
 
-Full list of hook events at [docs.windsurf.com/windsurf/cascade/hooks](https://docs.windsurf.com/windsurf/cascade/hooks) — includes worktree and Arena Mode events not covered here.
+### Observability Hook: Log Every Response + Rules Applied
+
+Use `post_cascade_response` to ship Cascade's behavior to your observability stack. The `rules_applied` field (added Feb 2026) lists which memories/rules were actually triggered for each response — invaluable for tuning rules over time.
+
+```python
+#!/usr/bin/env python3
+"""Ship every Cascade response + applied rules to a JSONL log."""
+import sys, json, time, pathlib
+
+LOG = pathlib.Path.home() / ".codeium" / "windsurf" / "responses.jsonl"
+LOG.parent.mkdir(parents=True, exist_ok=True)
+
+try:
+    data = json.loads(sys.stdin.read())
+except json.JSONDecodeError:
+    sys.exit(0)
+
+entry = {
+    "ts": time.time(),
+    "trajectory_id": data.get("trajectory_id"),
+    "rules_applied": data.get("rules_applied", []),
+    "response_summary": (data.get("content") or "")[:200],
+}
+
+with LOG.open("a") as f:
+    f.write(json.dumps(entry) + "\n")
+
+sys.exit(0)
+```
+
+Pipe this file into LangFuse or Datadog for a Cascade-native analog of what LangFuse gives Hermes/OpenClaw out of the box (see [Section 19](#19-harness-parity-hermesopenclaw-features-in-cascade)).
+
+### Auto-Format on Write
+
+Runs your formatter after Cascade modifies code — the Cascade analog of a git pre-commit hook but agent-side.
+
+```json
+{
+  "hooks": {
+    "post_write_code": [
+      { "command": "npx prettier --write $FILE", "show_output": false },
+      { "command": "npx eslint --fix $FILE", "show_output": false }
+    ]
+  }
+}
+```
+
+### Block Dangerous Commands
+
+```python
+#!/usr/bin/env python3
+"""Block rm -rf /, dd to /dev/sd*, force pushes to main, etc."""
+import sys, re, json
+
+BLOCKED = [
+    r"rm\s+-rf\s+/(\s|$)",
+    r"dd\s+.*of=/dev/sd",
+    r"git\s+push\s+.*--force\s+.*\b(main|master)\b",
+    r":\(\)\s*\{\s*:\|\:&\s*\}",  # fork bomb
+]
+
+data = json.loads(sys.stdin.read())
+cmd = data.get("command") or data.get("tool_info", {}).get("command", "")
+
+for pattern in BLOCKED:
+    if re.search(pattern, cmd):
+        print(f"BLOCKED: Dangerous pattern matched: {pattern}")
+        sys.exit(2)
+
+sys.exit(0)
+```
+
+Full list of hook events at [docs.windsurf.com/windsurf/cascade/hooks](https://docs.windsurf.com/windsurf/cascade/hooks).
 
 ### Hook Merge Order
 
-Hooks merge in priority order: **system → user → workspace**. Workspace hooks override user hooks, which override system defaults.
+Hooks merge in priority order: **system → user → workspace → cloud dashboard (Enterprise)**. Workspace hooks override user hooks, which override system defaults.
 
 ---
 
-## 6. Memories & Rules
+## 9. Memories & Rules
 
 ### The Built-In Memory System
 
@@ -676,6 +968,12 @@ All API calls must have a 10-second timeout.
 Use named exports, not default exports.
 ```
 
+### Trace Which Rules Actually Fire (`rules_applied`)
+
+The `post_cascade_response` hook includes a `rules_applied` field — a list of memory/rule IDs that actually matched and shaped that response. Log it to see which rules are earning their keep and which are dead weight.
+
+If you have 40 rules and only 3 ever fire, the other 37 are burning context for no reason. Delete them.
+
 ### Memories & Rules vs AGENTS.md
 
 | Feature | Memories & Rules | AGENTS.md |
@@ -689,7 +987,7 @@ Use both. AGENTS.md for project context, Memories & Rules for personal preferenc
 
 ---
 
-## 7. Workflows
+## 10. Workflows
 
 ### Slash-Command Automations
 
@@ -746,7 +1044,400 @@ Workflows use the same YAML frontmatter format as skills (`name` + `description`
 
 ---
 
-## 8. Real-World Configurations
+## 11. Worktrees — Parallel Cascade
+
+Git worktrees let you run Cascade tasks in parallel without interfering with your main workspace. Each Cascade conversation gets its own checkout, so it can edit, build, and test independently of whatever you're doing in the main checkout.
+
+### Starting a Worktree Session
+
+In the Cascade input box, open the mode toggle (bottom right) and switch to **Worktree** before sending the first message. You can only switch into a worktree **at the start** of a session — not mid-conversation.
+
+When Cascade finishes, click **Merge** to integrate the changes back into your main workspace.
+
+### Where Worktrees Live
+
+```
+~/.windsurf/worktrees/<repo_name>/<random_id>/
+```
+
+Run `git worktree list` in your repo to see them. Windsurf cleans up older worktrees automatically.
+
+**Gotcha:** if your project uses relative paths outside the repo root (symlinked deps, `../shared-lib`, monorepo source deps), they'll break inside a worktree because the worktree lives in a different directory. Use a `post_setup_worktree` hook to recreate the links.
+
+### `post_setup_worktree` Hook
+
+This hook runs inside the **new worktree directory** after it's created, with `$ROOT_WORKSPACE_PATH` pointing back at the original repo. Use it to copy `.env` files, install deps, symlink shared folders.
+
+**`.windsurf/hooks.json`:**
+```json
+{
+  "hooks": {
+    "post_setup_worktree": [
+      {
+        "command": "bash $ROOT_WORKSPACE_PATH/hooks/setup_worktree.sh",
+        "show_output": true
+      }
+    ]
+  }
+}
+```
+
+**`hooks/setup_worktree.sh`:**
+```bash
+#!/bin/bash
+
+# Copy environment files from the original workspace
+for f in .env .env.local .env.development; do
+  if [ -f "$ROOT_WORKSPACE_PATH/$f" ]; then
+    cp "$ROOT_WORKSPACE_PATH/$f" "$f"
+    echo "Copied $f"
+  fi
+done
+
+# Install dependencies
+if [ -f "package.json" ]; then
+  npm install
+fi
+if [ -f "pyproject.toml" ]; then
+  uv sync || pip install -e .
+fi
+
+# Symlink monorepo siblings if your repo expects them
+if [ -d "$ROOT_WORKSPACE_PATH/../shared-lib" ]; then
+  ln -sfn "$ROOT_WORKSPACE_PATH/../shared-lib" "../shared-lib"
+fi
+
+exit 0
+```
+
+### When to Use Worktrees
+
+- **Risky refactors** — let Cascade go wild in a worktree, review the diff before merging
+- **Long-running tasks** — keep typing in main while Cascade works
+- **Arena Mode** — each model in Arena Mode gets its own worktree automatically (see next section)
+- **Trying multiple approaches** — spin up 3 worktree sessions with different strategies, keep the best one
+
+---
+
+## 12. Arena Mode — Side-by-Side Models
+
+Arena Mode runs multiple Cascade instances in parallel with different models and lets you pick the best output. Each model gets its own worktree, so they don't step on each other.
+
+### How to Enter Arena
+
+Open the model picker and click the **Arena** tab. Either pick specific models or use a **Battle Group** (Windsurf randomizes the two models for you).
+
+| Mode | Use Case |
+|------|----------|
+| **Single** | Run Cascade with a single chosen model |
+| **Arena** | Compare responses from two models on the same prompt |
+
+### Battle Groups
+
+| Group | Contents | Best for |
+|-------|----------|----------|
+| **Frontier** | GPT 5.4, Claude Opus/Sonnet 4.6, Gemini 3.1 Pro, etc. | Intelligence-heavy design / architecture work |
+| **Fast** | SWE 1.6, SWE 1.6 Fast, Claude Haiku, GPT-5.3-Codex-Spark | Speed, simple edits, refactors |
+| **Hybrid** | Mix of frontier + fast | Balanced comparison |
+
+Names are hidden until you click **"X is better"** to converge. Then identities are revealed and the two conversations are reshuffled. Your votes feed both a personal leaderboard and a global one at [windsurf.com/leaderboard](https://windsurf.com/leaderboard).
+
+### Converge Workflow
+
+1. Send prompt → both models run in parallel, each in its own worktree
+2. Evaluate both outputs — code, test results, diff size
+3. Click **"Left is better"** or **"Right is better"** to discard the loser
+4. Subsequent messages go to both models simultaneously (so you can keep comparing) or stay single-track — your choice
+
+### Cost
+
+Arena charges the sum of the individual model costs for each turn. A 6x model + 4x model = 10x credits per request. For Battle Groups the displayed cost is the **maximum** of the two possible models so you can't be surprised.
+
+### Pro Pattern
+
+Use Arena + Battle Groups as a live benchmark. Over 20-30 tasks you'll develop calibrated intuition about which model actually wins on *your* codebase — independent of benchmarks and hype.
+
+---
+
+## 13. Web Search & Windsurf Browser
+
+### `@web` and `@docs`
+
+Cascade can browse the internet like a human: skim a page, find the relevant section, pull only the chunks it needs. This keeps credit usage low.
+
+Four ways to trigger it:
+
+| Trigger | What happens |
+|---------|-------------|
+| Natural phrasing ("what's new in the latest React?") | Cascade auto-decides to web search |
+| `@web <query>` | Force a general web search |
+| `@docs <query>` | Search over a curated docs set that Cascade reads with high quality |
+| Paste a URL into your message | Cascade reads that specific page |
+
+The **Enable Web Search** admin setting controls open-internet search. Even if it's disabled, Cascade can still read specific URLs you paste in — URL reads happen **locally on your machine**, inside your network (so a VPN is fine).
+
+### Windsurf Browser (2.0)
+
+Windsurf 2.0 ships a refined **in-editor Chromium browser** with a Cascade tool for reading page contents. Practical uses:
+
+- Cascade can pull logs, dashboards, admin pages from inside Windsurf without leaving the editor
+- Run your dev server and inspect it without opening Chrome
+- Let Cascade iterate on visual UI changes by reloading and reading the rendered page
+- Authenticate once to internal tools; the session persists for future reads
+
+### Reading GitHub / Blog Posts / Docs
+
+Paste the URL and Cascade breaks the page into chunks similar to how you'd skim it. For long pages it jumps to the section that matches your question. Most mainstream doc sites parse cleanly; some JS-heavy SPAs are hit-or-miss — file a feature request if a site you rely on is broken.
+
+### Tip
+
+Combine with Skills: wrap `@docs` calls for your specific stack into named skills (e.g. `@django-docs`, `@stripe-docs`) so Cascade reaches for the right reference automatically.
+
+---
+
+## 14. App Deploys — One-Click Netlify
+
+Cascade can deploy a web app to a public URL in one step. Useful for shipping previews fast.
+
+### What's Supported
+
+- **Provider:** Netlify
+- **Frameworks:** Next.js, React, Vue, Svelte (more coming)
+- **Output URL format:** `<your-subdomain>.windsurf.build`
+
+### Deploying
+
+Just ask Cascade:
+
+```
+"Deploy this project to Netlify"
+"Update my deployment"
+```
+
+Cascade analyzes your project, picks the framework, uploads files, creates the deployment, and hands you:
+- A public URL
+- A claim link (to move the project into your own Netlify account for custom domains, env vars, etc.)
+
+It writes a `windsurf_deployment.yaml` at the repo root storing the project ID and framework so re-deploys hit the same URL.
+
+### Claim Your Deploy
+
+App Deploys are intended as previews. For production, **claim the deployment** (click the claim link) and point your own Netlify account at it — that's where you add custom domains, secret env vars, and production-grade security.
+
+### Team Deploys
+
+Teams/Enterprise admins can connect a Netlify Team account so deploys go to your org's Netlify instead of the Windsurf umbrella account. Toggle in Team Settings.
+
+### Pairing with Devin
+
+Ask Devin (see [Section 3](#3-devin-in-windsurf--cloud-delegation)) to handle longer deploy workflows — it has full VM access, a browser, and can complete interactive flows (DNS cutovers, secret rotation, etc.) that need a human-like touch.
+
+---
+
+## 15. Editor-Layer AI: DeepWiki, Codemaps, Vibe and Replace
+
+These are Windsurf features outside the Cascade chat that most users never touch.
+
+### DeepWiki
+
+The same DeepWiki feature from Devin — brought into the editor as hover explanations.
+
+- Hover a symbol → `Cmd+Shift+Click` → DeepWiki opens a detailed explanation in the Primary Side Bar
+- Works on functions, classes, variables — explains what the code actually does, not just its type signature
+- Click **⋮ → Add to Cascade** to push the DeepWiki explanation into the current Cascade session as an `@mention`
+
+Use it for onboarding into an unfamiliar codebase. Pair with Codemaps (below) for the macro view.
+
+### Codemaps
+
+Shareable hierarchical maps of how your code executes. Generated by a specialized agent.
+
+- Open from the Activity Bar or via Command Palette → "Focus on Codemaps View"
+- Create from a suggested topic, a custom prompt, or from the bottom of a Cascade conversation
+- Each node links to a file + function — click to jump
+- Share links with teammates; viewable in any browser
+- `@mention` a Codemap in Cascade to give it macro structural context
+
+**Codemap vs DeepWiki:** DeepWiki is per-symbol. Codemaps are per-flow (e.g. "what happens when a user signs up").
+
+### Vibe and Replace
+
+AI-powered find-and-replace. Instead of a literal string swap, you describe what you want done to each match in natural language.
+
+- **Smart mode** — slow, careful, uses a more capable model
+- **Fast mode** — quick, uses SWE 1.6 Fast or similar
+
+Example:
+```
+Find: fetch(
+Vibe prompt: "Add a 10-second timeout and consistent error handling"
+```
+
+Every `fetch(` call gets rewritten with your pattern. Much cleaner than a regex sweep for anything context-dependent.
+
+### Productivity Tips
+
+- DeepWiki while reading → Codemaps while planning → Cascade while building → Vibe and Replace for systematic touch-ups
+- Use `@mention` to chain artifacts: a Codemap + a plan + a skill + a rule in a single Cascade prompt
+
+---
+
+## 16. Model Optimization — SWE 1.6, Adaptive, Battle Groups
+
+### The Model Landscape (as of April 2026)
+
+| Model | Speed | Cost | Best For |
+|-------|-------|------|----------|
+| **SWE 1.6** | ~200 tok/s (Fireworks) | **Free for 3 months** | New default for most agentic coding |
+| **SWE 1.6 Fast** | ~950 tok/s (Cerebras) | Paying plans, very low cost | Speed-sensitive tasks — most of them, honestly |
+| **SWE 1.5** | ~950 tok/s | Low | Previous-gen, still great; pin if you depend on its behavior |
+| **swe-grep** | ~fast | Very low | Powers [Fast Context](https://docs.windsurf.com/context-awareness/fast-context); not manually selectable |
+| **SWE-1-mini** | Real-time | — | Powers passive suggestions in Windsurf Tab |
+| **Adaptive** | Varies | Fixed per-token rate | Let Windsurf route to the right model per-task |
+| **GPT-5.4** / **5.4 Mini** | Medium | Promo 1x / 2x / 3x / 8x | General purpose, big context |
+| **GPT-5.2-Codex** | Medium | — | Long sessions in huge codebases |
+| **Claude Sonnet 4.6** | Medium | 2x / 3x | Complex logic, debugging, sharp refactors |
+| **Claude Opus 4.6 (Fast)** | ~2.5x Opus speed | 10x / 12x | Heavy-duty reasoning, architecture |
+| **Claude Opus 4.6** | Slow | 2x / 3x | Same intelligence as fast mode, cheaper, slower |
+| **Gemini 3.1 Pro** (Low/High Thinking) | Fast | 0.5x / 1x | Strong on structured tasks, multimodal |
+| **Gemini 3 Flash** | Very fast | — | Pro-grade reasoning at Flash speed |
+| **GLM-5**, **Minimax M2.5** | Fast | 0.75x / 0.25x | Alternative frontier models for Arena comparison |
+
+Cascade's model picker now shows **per-model input / output / cache-read token rates inline** and a **prompt cache timer** in the context-window indicator. Use both to cost-optimize live.
+
+### SWE 1.6 — The New Default
+
+SWE 1.6 (April 7, 2026) is the new in-house frontier agentic coding model. Highlights from the [release notes](https://cognition.ai/blog/swe-1-6):
+
+- **10%+ better on SWE-Bench Pro** than SWE 1.5
+- **Parallel tool calls more often** — dramatically fewer round trips
+- **Less looping** — length penalty during training keeps it from going in circles
+- **Prefers its own tools over shelling out** — fewer interactive command prompts
+- **Up to 950 tok/s** on Cerebras via SWE 1.6 Fast
+- **Free tier for 3 months** (via Fireworks at ~200 tok/s)
+
+Translation: **default to SWE 1.6 Fast** for everything except deep reasoning. The speed advantage compounds — one trajectory that used to take 30 seconds now takes 8, and Cascade makes fewer wasteful calls to boot.
+
+### Adaptive Model Router
+
+The **Adaptive** option in the model picker dynamically selects the right underlying model for each task and draws down quota at a **fixed per-token rate** regardless of which model it picks.
+
+Extra usage promo (as of April 2026):
+- **$0.50 / 1M input tokens**
+- **$2.00 / 1M output tokens**
+- **$0.10 / 1M cache read tokens**
+
+Use Adaptive when:
+- You're doing mixed work in a single session and don't want to keep switching
+- You want predictable billing
+- You've hit quota on a premium model but don't want to context-switch
+
+Don't use Adaptive when you specifically need a certain model's behavior (e.g. Opus for deep debugging, SWE 1.6 Fast for raw speed).
+
+### Routing Prompts with Natural Language
+
+```
+/fast  Refactor this util file to use TypeScript
+/deep  Design a distributed caching strategy for our API
+```
+
+Cascade interprets:
+- Short, specific requests → SWE 1.6 / SWE 1.6 Fast
+- Complex, open-ended requests → Opus / Sonnet 4.6 / GPT-5.4
+
+### Custom Model Selector Workflow
+
+Create `.windsurf/workflows/fast.md`:
+
+```yaml
+---
+name: fast
+description: Use SWE 1.6 Fast for quick edits and refactors. Optimize for speed.
+---
+
+# Fast Mode (SWE 1.6 Fast)
+
+Use the SWE 1.6 Fast model for this task:
+- Make minimal changes
+- Don't over-explain
+- Just show the code
+- Skip validation phrases
+- Prefer parallel tool calls
+```
+
+Then type `/fast` in Cascade to trigger it.
+
+### Pin Your Favorites
+
+The new model picker (Feb 2026) lets you **pin** specific models so they float to the top. Pin SWE 1.6 Fast + Adaptive + Sonnet 4.6 and you've covered 95% of your work with three clicks.
+
+### Prompt Cache Timer
+
+The context-window indicator shows a **prompt cache timer** — how long until the current prompt falls out of the cache. When it's close to expiring, sending a follow-up *before* it expires is much cheaper than after. Useful for back-to-back related queries.
+
+---
+
+## 17. Custom Subagents
+
+### Beyond Directory-Scoped Instructions
+
+AGENTS.md files can define **subagent personalities** — specialized modes that Cascade switches into for specific tasks.
+
+### Example: Terse Mode Profile
+
+Create `.windsurf/agents/terse/AGENT.md`:
+
+```markdown
+---
+name: terse
+description: Ultra-direct coding mode. No validation phrases. Immediate execution.
+---
+
+# Terse Agent Profile
+
+## Personality
+- Skip throat-clearing ("That's a great idea!", "I'll help you with that")
+- Execute immediately without asking permission
+- Speed is #1 priority
+- Keep responses under 3 sentences when possible
+
+## Execution Rules
+- Never re-read files already in context
+- Batch tool calls for parallel execution
+- If ambiguous, pick the most likely interpretation and proceed
+- Show code changes directly, don't describe them
+
+## Communication Style
+- Direct statements only
+- No bullet point summaries of what you'll do
+- No apologies for brevity
+
+## Use When
+- The user says "quick fix", "just do it", "make it happen"
+- Task is straightforward (refactor, rename, move)
+- User seems frustrated with verbosity
+```
+
+### Activating Subagents
+
+Type `@terse` in Cascade to switch to that personality.
+
+**Pro tip:** Combine with model selector for `@terse /fast` — fastest possible execution mode. SWE 1.6 Fast + terse personality + Adaptive fallback = a workflow that makes Hermes' `@Molty` style feel clunky.
+
+### Other Useful Profiles
+
+| Profile | Use Case |
+|---------|----------|
+| `security` | Code review focused on vulnerabilities |
+| `docs` | Writing documentation, comments, READMEs |
+| `test` | Generating comprehensive test coverage |
+| `optimize` | Performance-focused refactoring |
+| `reviewer` | PR-style review comments, no code changes |
+| `architect` | Plan Mode bias, asks many clarifying questions |
+
+---
+
+## 18. Real-World Configurations
 
 ### Production MCP Server: Attio CRM
 
@@ -817,7 +1508,12 @@ Full `.windsurf/` directory for a production project:
 │   └── refactor-module.md
 ├── hooks/
 │   ├── check_secrets.py
-│   └── command_audit.py
+│   ├── command_audit.py
+│   ├── setup_worktree.sh
+│   └── response_logger.py
+├── agents/
+│   └── terse/
+│       └── AGENT.md
 └── memories/                # Auto-managed by Windsurf
 ```
 
@@ -825,116 +1521,247 @@ Global MCP servers go in `~/.codeium/windsurf/mcp_config.json`. Global skills go
 
 ---
 
----
+## 19. Harness Parity: Hermes/OpenClaw Features in Cascade
 
-## 9. Model Optimization
+This is the section that triggered this whole guide: **people are paying for standalone AI harnesses (Hermes, OpenClaw, Claude Code wrappers) to get capabilities Cascade already has — or can trivially have through MCP + hooks + skills.** Below is how to reach rough parity with each high-value harness feature, using stock Windsurf.
 
-### The Hidden Fast Mode
+If you're building a harness, stop. Use this instead.
 
-Cascade has multiple models, but most users never switch from the default. **SWE 1.5** (Software Engineering model) outputs at **~950 tokens/second** — roughly 3-4x faster than Claude Sonnet.
+### 19.1 Graph RAG / LightRAG-Style Memory
 
-| Model | Speed | Best For |
-|-------|-------|----------|
-| **SWE 1.5** | ~950 tok/s | Simple edits, refactors, grep-style tasks |
-| **SWE 1.5 Fast** | ~950 tok/s, lower cost | Same as above, budget-optimized |
-| **Claude Sonnet 4.5** | ~250 tok/s | Complex architecture, debugging |
-| **Claude Opus 4.6** | ~150 tok/s | Deep reasoning, design decisions |
+**What Hermes/OpenClaw do:** Run a LightRAG server that indexes your notes/code into an entity + relationship graph. Queries return facts like "who decided X and why" instead of just "text similar to X".
 
-### How to Trigger Specific Models
+**Cascade equivalent:** Stand up LightRAG (or any graph-RAG service) as an MCP server with tools like `query_graph`, `add_fact`, `get_related`. Point a skill at it.
 
-Models are selected based on the complexity hint in your prompt:
-
-```
-/fast  Refactor this util file to use TypeScript
-/deep  Design a distributed caching strategy for our API
-```
-
-**Cascade interprets:**
-- Short, specific requests → SWE 1.5 (fast)
-- Complex, open-ended requests → Claude Opus (deep)
-
-### Custom Model Selector Workflow
-
-Create `.windsurf/workflows/fast.md`:
-
+**`.windsurf/skills/deep-recall/SKILL.md`:**
 ```yaml
 ---
-name: fast
-description: Use SWE 1.5 for quick edits and refactors. Optimize for speed.
+name: deep-recall
+description: Query the project knowledge graph for decisions, entities, and relationships. Use when the user asks "why did we", "who decided", "what's the history of X".
 ---
 
-# Fast Mode (SWE 1.5)
+# Deep Recall
 
-Use the SWE 1.5 model for this task:
-- Make minimal changes
-- Don't over-explain
-- Just show the code
-- Skip validation phrases
+1. Call lightrag.query_graph with the user's question
+2. Present the returned entities + relationships
+3. For each relationship, link to the source file/PR
+4. If nothing matches, fall back to file search
 ```
 
-Then type `/fast` in Cascade to trigger it.
+**`.windsurf/mcp_config.json`:**
+```json
+{
+  "mcpServers": {
+    "lightrag": {
+      "command": "python",
+      "args": ["/path/to/lightrag_mcp_server.py"],
+      "env": {
+        "LIGHTRAG_URL": "http://localhost:9621"
+      }
+    }
+  }
+}
+```
 
----
+Now Cascade has exactly what Hermes has — without running Hermes.
 
-## 10. Custom Subagents (AGENTS.md Profiles)
+### 19.2 Vault / MOC-Style Persistent Knowledge
 
-### Beyond Directory-Scoped Instructions
+**What OpenClaw does:** Maintains a vault of markdown files with Maps of Content (MOCs), wiki-links between entities, and auto-captured "Agent Notes" per session.
 
-AGENTS.md files can define **subagent personalities** — specialized modes that Cascade switches into for specific tasks.
+**Cascade equivalent:** A combination of:
+- **AGENTS.md** files per directory for project context
+- **Memories & Rules** for preferences that persist across sessions
+- **Plan files** at `~/.windsurf/plans/` — `@mention`-able from any future session
+- A `vault/` folder in your repo with MOCs, linked via relative paths, that Cascade treats as context
 
-### Example: Terse Mode Profile
-
-Create `.windsurf/agents/terse/AGENT.md`:
-
+Add this to root `AGENTS.md`:
 ```markdown
----
-name: terse
-description: Ultra-direct coding mode. No validation phrases. Immediate execution.
----
-
-# Terse Agent Profile
-
-## Personality
-- Skip throat-clearing ("That's a great idea!", "I'll help you with that")
-- Execute immediately without asking permission
-- Speed is #1 priority
-- Keep responses under 3 sentences when possible
-
-## Execution Rules
-- Never re-read files already in context
-- Batch tool calls for parallel execution
-- If ambiguous, pick the most likely interpretation and proceed
-- Show code changes directly, don't describe them
-
-## Communication Style
-- Direct statements only
-- No bullet point summaries of what you'll do
-- No apologies for brevity
-
-## Use When
-- The user says "quick fix", "just do it", "make it happen"
-- Task is straightforward (refactor, rename, move)
-- User seems frustrated with verbosity
+## Project Vault
+- All architectural decisions live in `vault/decisions/ADR-NNN.md`
+- Subsystem maps live in `vault/mocs/<name>.md` — start here for any cross-cutting task
+- When making a big decision, write an ADR *first*, then implement
 ```
 
-### Activating Subagents
+### 19.3 Auto-Capture Hook — Extract Knowledge After Every Session
 
-Type `@terse` in Cascade to switch to that personality.
+**What OpenClaw does:** Runs a hook after every session that extracts key facts, decisions, and TODOs into the vault.
 
-**Pro tip:** Combine with model selector for `@terse /fast` — fastest possible execution mode.
+**Cascade equivalent:** `post_cascade_response_with_transcript` hook.
 
-### Other Useful Profiles
+**`.windsurf/hooks.json`:**
+```json
+{
+  "hooks": {
+    "post_cascade_response_with_transcript": [
+      {
+        "command": "python .windsurf/hooks/auto_capture.py",
+        "show_output": false
+      }
+    ]
+  }
+}
+```
 
-| Profile | Use Case |
-|---------|----------|
-| `security` | Code review focused on vulnerabilities |
-| `docs` | Writing documentation, comments, READMEs |
-| `test` | Generating comprehensive test coverage |
-| `optimize` | Performance-focused refactoring |
+**`.windsurf/hooks/auto_capture.py`:**
+```python
+#!/usr/bin/env python3
+"""After each Cascade turn, extract decisions/TODOs into vault/agent-notes/."""
+import sys, json, datetime, pathlib, re
+
+VAULT = pathlib.Path("vault/agent-notes")
+VAULT.mkdir(parents=True, exist_ok=True)
+
+data = json.loads(sys.stdin.read())
+transcript = data.get("transcript", "")
+trajectory_id = data.get("trajectory_id", "unknown")
+
+# Cheap local extraction — swap in an LLM call if you want more
+decisions = re.findall(r"(?im)^(?:decision|decided|we'll|we will):\s*(.+)$", transcript)
+todos = re.findall(r"(?im)^(?:todo|next step|next):\s*(.+)$", transcript)
+
+if not decisions and not todos:
+    sys.exit(0)
+
+out = VAULT / f"{datetime.date.today()}-{trajectory_id[:8]}.md"
+with out.open("a") as f:
+    f.write(f"\n## Session {trajectory_id}\n")
+    for d in decisions:
+        f.write(f"- **Decision:** {d.strip()}\n")
+    for t in todos:
+        f.write(f"- **TODO:** {t.strip()}\n")
+
+sys.exit(0)
+```
+
+For an LLM-powered version, shell out to a local model or an inference API from inside the hook.
+
+### 19.4 Memory Bridge — Share Memory Across Tools
+
+**What OpenClaw does:** CLI bridge so Codex/Claude Code can read your vault.
+
+**Cascade equivalent:** Expose the vault over MCP. Point a local filesystem MCP server at the vault directory, and Cascade (plus any other MCP client) can query it.
+
+```json
+{
+  "mcpServers": {
+    "vault": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/vault"]
+    }
+  }
+}
+```
+
+### 19.5 Multi-Provider Fallback Chains
+
+**What Hermes does:** Cerebras → Fireworks → Ollama fallback if upstream is down.
+
+**Cascade equivalent:** Windsurf already handles this internally for SWE 1.6 Fast (Cerebras → Fireworks fallback). For custom providers, use **BYOK** (Bring Your Own Key) in the model picker for Claude 4 Sonnet / Opus. If you want full provider control, wrap your own models as an OpenAI-compatible MCP server.
+
+### 19.6 Orchestrator / Worker / Sub-Agent Pattern
+
+**What OpenClaw does:** CEO/COO/Worker model — cheap model orchestrates, expensive model executes key tasks.
+
+**Cascade equivalent:** Same pattern, built in:
+- **Plan Mode** = CEO (uses a lightweight model for planning)
+- **Code Mode with SWE 1.6 Fast** = Worker (fast, cheap execution)
+- **Devin delegation** = specialized long-running sub-agent
+- **Arena Mode** for when you can't decide = a secondary "second opinion" model
+- **Spaces** = the coordination surface
+
+For more structured orchestration, chain Skills + Workflows:
+
+```yaml
+# .windsurf/workflows/orchestrated-feature.md
+---
+name: orchestrated-feature
+description: Plan with SWE 1.6, execute with SWE 1.6 Fast, review with Sonnet 4.6
+---
+
+1. Switch to Plan Mode, draft a plan for {{feature}}
+2. Save plan to ~/.windsurf/plans/{{feature}}.md
+3. Switch to Code Mode with SWE 1.6 Fast; implement plan
+4. Switch model to Sonnet 4.6; run @code-review skill
+5. If review clean → open PR; else iterate
+```
+
+### 19.7 Telegram / Mobile Access
+
+**What Hermes does:** Telegram bot for mobile chat with your agent.
+
+**Cascade equivalent:** Two options:
+1. **Delegate to Devin from mobile** — once you've handed tasks to Devin from Windsurf, you can monitor + comment on Devin sessions from any device at [devin.ai](https://devin.ai)
+2. **Telegram MCP server** — run a Telegram bot that proxies into Cascade-compatible webhooks; there are open-source MCP servers for this
+
+For truly on-the-go Cascade, the Devin handoff is the right answer — you plan on desktop, Devin executes in the cloud, you monitor from phone.
+
+### 19.8 Self-Improving System / Micro-Learning
+
+**What OpenClaw does:** Micro-learning loop that compounds forever, $0/day.
+
+**Cascade equivalent:** Memories & Rules + the stuck-diagnosis pattern from [Troubleshooting](#20-troubleshooting). When Cascade hits a recurring failure, force it to write a memory about the fix. Next time it won't repeat the mistake.
+
+Automate it with a rule:
+
+```
+When you hit the same error twice in a session, stop and write a
+memory capturing: (1) the trigger, (2) what failed, (3) the fix.
+Future sessions must read and avoid the documented failure mode.
+```
+
+Combined with the auto-capture hook above, your agent gets smarter every day.
+
+### 19.9 Observability (LangFuse / n8n)
+
+**What OpenClaw does:** LangFuse traces every agent call; n8n automates workflows.
+
+**Cascade equivalent:**
+- **LangFuse parity** — use `post_cascade_response_with_transcript` + `pre_mcp_tool_use` hooks to ship every trajectory to LangFuse. Example in [Section 8](#8-hooks).
+- **n8n parity** — n8n has an MCP server; add it and Cascade can fire n8n workflows directly.
+
+```json
+{
+  "mcpServers": {
+    "n8n": {
+      "command": "npx",
+      "args": ["-y", "@n8n/mcp-server"],
+      "env": {
+        "N8N_API_KEY": "your_key",
+        "N8N_BASE_URL": "https://your-n8n.example.com"
+      }
+    }
+  }
+}
+```
+
+### 19.10 Reranker / Better Search Quality
+
+**What OpenClaw does:** Adds a reranker on top of vector search.
+
+**Cascade equivalent:** Windsurf's [Fast Context](https://docs.windsurf.com/context-awareness/fast-context) + **swe-grep** already does RL-trained multi-turn context retrieval. You almost never need a custom reranker for code. For docs/notes, stack a reranker inside your LightRAG MCP server (see 19.1).
+
+### 19.11 Real-Time Knowledge Sync
+
+**What OpenClaw does:** File watcher syncs vault changes to LightRAG in <6s.
+
+**Cascade equivalent:** Run a watcher (`chokidar`/`watchexec`) alongside your LightRAG server that reindexes on change — no Cascade-side config needed. Or use the LightRAG REST API and fire off updates from `post_write_code` hooks when vault files change.
 
 ---
 
-## 11. Troubleshooting
+### Bottom Line
+
+Every harness feature you'd pay for or build yourself has a stock-Windsurf equivalent once you combine:
+
+```
+Skills + Hooks + MCP + Memories + Plans + Worktrees + Spaces + Devin
+```
+
+And you get it at **SWE 1.6 Fast speed** (950 tok/s on Cerebras), which is already 3-4x faster than most of those harnesses on Claude Sonnet.
+
+---
+
+## 20. Troubleshooting
 
 ### "Connecting to Language Server" Stuck
 
@@ -951,7 +1778,9 @@ Cascade shows "Connecting to language server..." and won't respond:
 - Check that the command is globally available (`npx -y` handles this for Node servers)
 - Restart Windsurf after adding new servers — MCP config loads at startup
 - Check Cascade output panel for MCP connection errors
-- Marketplace servers: Cascade panel → hammer icon → search and install
+- Marketplace servers: Cascade panel → MCPs icon → search and install
+- Hit the 100-tool ceiling? Disable individual tools in each MCP's settings page
+- HTTP/SSE with OAuth: Cascade should auto-open the login page — if it doesn't, try the MCP Refresh button
 
 ### Skills Not Auto-Executing
 
@@ -959,7 +1788,7 @@ Cascade shows "Connecting to language server..." and won't respond:
 - Check the `description` field — Cascade uses it for matching, not the filename
 - Skills require a workspace (not an empty window)
 - Try manual invocation with `@skill-name` to verify it loads
-- Also check global path: `~/.codeium/windsurf/skills/`
+- Also check global path: `~/.codeium/windsurf/skills/` and `.agents/skills/` / `.claude/skills/`
 
 ### Hooks Not Firing
 
@@ -968,6 +1797,7 @@ Cascade shows "Connecting to language server..." and won't respond:
 - Test the hook manually: `echo '{"file_path":"test.py"}' | python .windsurf/hooks/check_secrets.py`
 - Check exit codes: `0` = allow, `2` = block
 - Hook merge order: workspace overrides user overrides system
+- Enterprise: cloud-dashboard hooks may override yours — check with your admin
 
 ### Terminal Issues
 
@@ -975,6 +1805,18 @@ Cascade shows "Connecting to language server..." and won't respond:
 - PATH differences: Cascade may use a different PATH than your terminal. Use absolute paths in hooks.
 - Windows: use `"powershell"` key in hooks.json for cross-shell compatibility
 - MCP whitelist regex gotchas: test your patterns against actual command strings
+
+### Worktrees Break the Build
+
+- Relative paths outside the repo (`../shared-lib`) won't resolve inside a worktree
+- Use a `post_setup_worktree` hook to symlink or copy what's needed (see [Section 11](#11-worktrees--parallel-cascade))
+- `.env` files aren't copied automatically — handle in the setup hook
+
+### Devin Not Showing Up
+
+- Access rolls out gradually — log out of both the website and the IDE, then log back in
+- Enterprise accounts: Devin Cloud is disabled by default; admin must enable in org settings
+- Devin draws from your existing Windsurf quota — if you're out of quota, it won't spin up
 
 ### Cascade Gets Stuck on a Step
 
@@ -1007,25 +1849,47 @@ This works because Cascade can introspect on what went wrong and save the fix. A
 
 | Feature | Config Location | Discovery | Override Level |
 |---------|----------------|-----------|----------------|
-| Terminal execution | Settings UI + hooks.json | Built-in | User > Workspace |
-| Skills | .windsurf/skills/*/SKILL.md + global path | Auto-scan | Workspace + User |
-| MCP servers | mcp_config.json (user + workspace) | Startup load | User + Workspace |
+| Cascade Modes (Code/Plan/Ask) | Mode toggle under input (`⌘+.`) | Built-in | Per-session |
+| Agent Command Center | Sidebar | Built-in (2.0) | N/A |
+| Spaces | Sidebar | Built-in (2.0) | Per-session |
+| Devin in Windsurf | Command Center | Built-in (2.0) | Per-plan |
+| Terminal execution | Settings UI + hooks.json | Built-in | System → User → Workspace → Org |
+| Skills | `.windsurf/skills/` + global + `.agents/` + `.claude/` | Auto-scan | Workspace + User + Enterprise MDM |
+| MCP servers | `mcp_config.json` (user + workspace) | Startup load + Marketplace | User + Workspace + Org registry |
 | AGENTS.md | Any directory | Per-file | Root → Subdirectory |
-| Hooks | .windsurf/hooks.json | Startup load | System → User → Workspace |
+| Hooks | `.windsurf/hooks.json` + user + cloud dashboard | Startup load | System → User → Workspace → Cloud |
 | Memories & Rules | Cascade UI | Session-persist | User only |
-| Workflows | .windsurf/workflows/*.md | Auto-scan | Workspace only |
-| Model selector | Prompt hints (`/fast`, `/deep`) | Contextual | Auto-detected |
-| Subagent profiles | .windsurf/agents/*/AGENT.md | @mention | Workspace only |
+| Workflows | `.windsurf/workflows/*.md` | Auto-scan | Workspace only |
+| Worktrees | Mode toggle + `post_setup_worktree` hook | Per-session | Workspace only |
+| Arena Mode | Model picker → Arena tab | Per-session | User only |
+| Web Search | Settings + `@web`/`@docs`/URL paste | Contextual | User + Org admin toggle |
+| Windsurf Browser | In-editor browser tool | Built-in (2.0) | Per-session |
+| App Deploys | Ask Cascade to deploy | On-demand | User / Team account |
+| DeepWiki | `Cmd+Shift+Click` symbol | Built-in | Per-session |
+| Codemaps | Activity Bar / Command Palette | On-demand | Workspace (shareable) |
+| Vibe and Replace | Find/Replace panel | Built-in | Per-file |
+| Model selector | Prompt hints (`/fast`, `/deep`) + picker + pinning | Contextual | Auto-detected |
+| Adaptive router | Model picker | Per-turn | User |
+| Subagent profiles | `.windsurf/agents/*/AGENT.md` | `@mention` | Workspace only |
 
 ---
 
 ## Resources
 
 - [Windsurf Documentation](https://docs.windsurf.com)
+- [Windsurf Changelog](https://windsurf.com/changelog)
+- [Windsurf Blog — Windsurf 2.0 announcement](https://windsurf.com/blog/windsurf-2-0)
+- [SWE 1.6 Research Post (Cognition)](https://cognition.ai/blog/swe-1-6)
+- [Agent Command Center docs](https://docs.windsurf.com/windsurf/agent-command-center)
+- [Spaces docs](https://docs.windsurf.com/windsurf/spaces)
+- [Devin in Windsurf docs](https://docs.windsurf.com/windsurf/devin)
 - [MCP Specification](https://spec.modelcontextprotocol.io)
 - [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
 - [MCP Server Directory](https://github.com/modelcontextprotocol/servers)
-- [OpenClaw Optimization Guide](https://github.com/OnlyTerp/openclaw-optimization-guide)
+- [Agent Skills Spec](https://agentskills.io)
+- [Arena Leaderboard](https://windsurf.com/leaderboard)
+- [OpenClaw Optimization Guide](https://github.com/OnlyTerp/openclaw-optimization-guide) — companion guide for the OpenClaw harness
+- [Hermes Optimization Guide](https://github.com/OnlyTerp/hermes-optimization-guide) — companion guide for the Hermes harness
 
 ---
 
