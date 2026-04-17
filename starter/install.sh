@@ -123,7 +123,7 @@ bold "done."
 echo
 if [[ $UPDATE -eq 1 ]]; then
   green "updated skills / agents / workflows / hook scripts."
-  echo "preserved: AGENTS.md, vault/, hooks.json, mcp_config.json"
+  echo "preserved: AGENTS.md, vault/, plans/, templates/, hooks.json, mcp_config.json"
 else
   green "installed."
   echo

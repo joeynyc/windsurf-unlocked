@@ -131,7 +131,7 @@ Everything else works as-is.
 curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/starter/install.sh | bash -s -- --update
 ```
 
-`--update` refreshes the skills/hooks/workflows but skips `AGENTS.md`, `mcp_config.json`, and `vault/`.
+`--update` refreshes the skills/hooks/workflows but skips `AGENTS.md`, `mcp_config.json`, `vault/`, `plans/`, and `templates/`.
 
 ---
 
