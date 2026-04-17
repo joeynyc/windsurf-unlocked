@@ -2297,18 +2297,29 @@ app.post("/webhooks/linear", async (req, res) => {
   if (action !== "assigned" || data.assignee?.id !== CASCADE_USER_ID) {
     return res.json({ ok: true });
   }
-  const issue = await linear.issue(data.id);
 
-  // Plan phase — Plan Mode, post plan back to Linear
-  const plan = await runCascade([
-    "windsurf", "cascade", "--mode=plan",
-    `Plan this Linear issue in plans/${issue.identifier}.md. Post plan to stdout.`,
-    "--context", `${issue.title}\n\n${issue.description}`,
-  ]);
-  await issue.createComment({ body: `## Plan\n${plan}\n\nReply with changes or mention me to start implementation.` });
+  // ACK immediately so Linear doesn't retry while Cascade runs (plans can take
+  // minutes). Webhook errors must NEVER propagate to Linear — retries spawn
+  // new cascade subprocesses and cause runaway loops.
+  res.json({ ok: true });
 
-  // (Optional) Implement phase — kicks off on explicit mention/comment
-  res.json({ ok: true });   // Linear retries if we don't ACK — must respond on every code path
+  try {
+    const issue = await linear.issue(data.id);
+
+    // Plan phase — Plan Mode, post plan back to Linear
+    const plan = await runCascade([
+      "windsurf", "cascade", "--mode=plan",
+      `Plan this Linear issue in plans/${issue.identifier}.md. Post plan to stdout.`,
+      "--context", `${issue.title}\n\n${issue.description}`,
+    ]);
+    await issue.createComment({
+      body: `## Plan\n${plan}\n\nReply with changes or mention me to start implementation.`,
+    });
+    // (Optional) Implement phase — kicks off on explicit mention/comment
+  } catch (err) {
+    console.error("cascade failed for issue", data.id, err);
+    // Optional: post a failure comment back to the issue so humans notice.
+  }
 });
 
 function runCascade(args: string[]): Promise<string> {
