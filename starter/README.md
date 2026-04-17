@@ -33,7 +33,10 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── wiki-query/               # Read vault/ before starting work
     │   ├── pr-ready/                 # Turn branch into clean PR
     │   ├── test-backfill/            # Fill gaps to hit coverage target
-    │   └── secret-scrubber/          # Block diffs with leaked secrets
+    │   ├── secret-scrubber/          # Block diffs with leaked secrets
+    │   ├── planning-with-files/      # Manus-style persistent plan files
+    │   ├── ast-grep/                 # Structural (AST-aware) search + refactor
+    │   └── compact-hygiene/          # Proactive /compact with preservation
     ├── hooks/                        # Shell + Python hook scripts
     │   ├── secret_scan.py            # pre_tool_use on file writes
     │   ├── langfuse_logger.py        # post_cascade_response telemetry
@@ -44,8 +47,16 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── plan-then-implement.md
     │   ├── speckit-specify.md
     │   ├── speckit-plan.md
-    │   └── megaplan.md
+    │   ├── megaplan.md
+    │   ├── ralph-safe.md             # Persistent loop with killswitch + cost cap
+    │   ├── prd-driven.md             # Spec-first, anti-drift feature workflow
+    │   ├── reflection-loop.md        # generate → evaluate → revise
+    │   └── visual-iteration.md       # Screenshot → describe → fix (Chrome DevTools MCP)
     └── mcp_config.json               # Curated server list (all Streamable HTTP)
+
+../plans/                              # File-based plans (planning-with-files skill)
+../templates/
+    └── PRD.template.md               # 9-section drop-in PRD
 ```
 
 Every piece is documented in [the main guide](../README.md) — this is just the working reference implementation.

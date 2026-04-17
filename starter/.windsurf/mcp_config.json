@@ -66,7 +66,7 @@
       "linear": {
         "$doc": "Linear MCP (official) — Cascade as an assignable teammate. Docs: https://linear.app/docs/mcp",
         "transport": "streamable-http",
-        "url": "https://mcp.linear.app/sse",
+        "url": "https://mcp.linear.app/mcp",
         "headers": { "Authorization": "Bearer ${LINEAR_MCP_TOKEN}" }
       },
       "postgres": {

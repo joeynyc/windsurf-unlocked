@@ -115,12 +115,13 @@ If your language is missing, check the [ast-grep playground](https://ast-grep.gi
 | Call with specific first arg | `$FN("specific-arg", $$)` |
 | TypeScript generic call | `$FN<$T>($$)` |
 
-## Anti-Patterns
+## Never
 
-- ❌ Using ast-grep for a literal string match — `rg` is 10x faster
-- ❌ `--update-all` without a dry run
-- ❌ One-off complex patterns that aren't committed as rule files
-- ❌ Running on `node_modules/` — scope your path argument
+- **Never** use ast-grep for plain string/text search — `rg` is 10x faster and the right tool
+- **Never** run `--update-all` without first running the same pattern without it and reading the diff
+- **Never** leave complex patterns as one-off commands — commit them as rule files in `.ast-grep/rules/`
+- **Never** run against `node_modules/`, `vendor/`, `dist/`, or build output — always scope with a path argument
+- **Never** trust a rewrite across a codebase without running the test suite after
 
 ## Credits
 

@@ -63,12 +63,13 @@ Discard:
 3. **Write decisions to vault/ FIRST.** Anything worth preserving long-term goes to `vault/decisions/` before you compact — the vault survives forever, the session doesn't.
 4. **After compact**, re-read the preserved plan file and any cited vault pages to ground yourself before continuing.
 
-## Anti-Patterns
+## Never
 
-- ❌ Compacting without preservation instructions — you lose the thread
-- ❌ Compacting when context is already at 95% — damage is done
-- ❌ Compacting mid-tool-call — finish the step first
-- ❌ Relying on compact as long-term memory — use `vault/` for anything that matters beyond this session
+- **Never** run `/compact` without explicit preservation instructions — you lose the thread
+- **Never** wait until context is at 95% to compact — by then the earliest (and most foundational) context is already degraded
+- **Never** compact mid-tool-call — finish the in-flight step first
+- **Never** rely on compact as long-term memory — write durable facts to `vault/` before compacting; the vault survives forever, the session doesn't
+- **Never** compact away an active blocker or the current plan file path — always keep those in the preserve list
 
 ## Credits
 

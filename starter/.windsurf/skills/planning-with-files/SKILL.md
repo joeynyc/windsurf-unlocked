@@ -92,12 +92,14 @@ If this ships and breaks production, how do we back out in <10 minutes?
 - **Code Mode** with `@implementer`: pass the plan file path. The implementer works checkbox-by-checkbox.
 - **Ask Mode**: never creates plans; only reads them.
 
-## Anti-Patterns
+## Never
 
-- ❌ "Let me just quickly ..." — that's how scope drift starts. Write the plan.
-- ❌ Plans longer than 800 lines — if it's that big, split it into multiple plans.
-- ❌ Task breakdowns with no acceptance criteria — "refactor auth" is not a task.
-- ❌ Marking `[x]` when tests are red — never.
+- **Never** start coding on a task > 20 LOC or spanning > 1 file without a plan file committed first
+- **Never** mark a checkbox `[x]` when tests are red, the lint is broken, or the build fails
+- **Never** skip the plan "just for this one" — that's how scope drift starts
+- **Never** let a plan file exceed 800 lines — if it's that big, split it into multiple plans
+- **Never** write a task without an acceptance criterion — "refactor auth" is not a task; "add `rotateToken()` with tests" is
+- **Never** silently abandon a plan mid-implementation — update the plan, flag the pivot, re-review
 
 ## Hand-Off
 
