@@ -49,7 +49,10 @@ Details and customization: [**starter/README.md**](./starter/README.md).
 - [**`starter/`**](./starter/) — the actual working `.windsurf/` setup. Clone it, install it, fork it.
 - [**`PROMPTS.md`**](./PROMPTS.md) — 60+ battle-tested Cascade prompts organized by phase (plan / implement / refactor / debug / test / review / security / perf / docs / ship / teach / meta / edge cases).
 - [**`BENCHMARKS.md`**](./BENCHMARKS.md) — open-source benchmark methodology + published vendor numbers + community-contributed real-world data. PR your numbers.
+- [**`VAULT_PROTOCOL.md`**](./VAULT_PROTOCOL.md) — drop-in AGENTS.md block for the Karpathy-style Agentic Wiki (compounding markdown memory that beats RAG for internal docs).
 - [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
+
+**Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 14 viral techniques with copy-paste recipes.
 
 If you only have 10 minutes, read [§17 Custom Subagents](#17-custom-subagents) and [§20 Context Engineering](#20-context-engineering--the-agentic-wiki), then install the starter kit. That's the 80% of the value.
 
@@ -113,6 +116,291 @@ Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosys
 
 ---
 
+## Unlocked Power Moves
+
+> The 14 techniques actually going viral on X / Reddit / YouTube right now that make people say **"wait, Cascade can do that?"** — each with evidence of real adoption and a copy-paste recipe. Every one is reproducible in Windsurf 2.0.50 today.
+
+If you only do three of these, do **#1 Planning with Files**, **#2 Chrome DevTools MCP**, and **#5 `/compact` + preservation instructions**. They compound faster than anything else in this guide.
+
+### 1. Planning with Files (Manus-Style) — The $2B Acquisition Pattern
+
+**What it is:** Persistent markdown plans in `plans/` that Cascade reads *and updates* as it works. The skill behind Meta's $2B Manus acquisition and the reason the [planning-with-files](https://github.com/OthmanAdi/planning-with-files) skill hit **18.4k⭐ in ~90 days**.
+
+**Why it beats Cascade's built-in Plan mode:** Plan-mode plans live in-session. File-based plans survive `/compact`, session restarts, and context resets. The agent comes back two days later, reads the exact same plan, and resumes from checkbox #7.
+
+**30-second setup:**
+
+```bash
+# From your repo root
+mkdir -p plans
+```
+
+Add this to the top of your `AGENTS.md`:
+
+```markdown
+## Planning Protocol
+
+For any task > 20 lines of code:
+
+1. Create `plans/<slug>.md` with: Goal / Non-goals / Constraints / Task breakdown (checkboxes) / Risks / Rollback
+2. Work one checkbox at a time, running tests after each
+3. Update the plan file with `[x]` and a 1-line note as each checkbox completes
+4. When resuming a session, read the plan file FIRST before touching code
+
+Never proceed to step N+1 if step N's tests are red. Always update the plan before you update code.
+```
+
+**Cascade prompt to kick it off:**
+
+```
+Plan this in plans/add-stripe-webhooks.md before touching code.
+Use Plan Mode. When the plan is written, stop and hand it to @reviewer.
+```
+
+**Drop-in skill:** We've packaged this as [`starter/.windsurf/skills/planning-with-files`](./starter/.windsurf/skills) — auto-runs when intent matches.
+
+### 2. Chrome DevTools MCP — Give Your Agent Eyes
+
+**What it is:** Google's [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) server (35k⭐, official) exposes Chrome's full debugging surface to Cascade. Live DOM, console errors with source-mapped stack traces, network waterfall, screenshots, performance traces.
+
+**Why it's a wow:** Most frontend AI bugs are "the agent can't see what it built." This fixes that in one config line. You describe a bug, Cascade *takes a screenshot*, reads the console, and iterates.
+
+**30-second setup:**
+
+```json
+// starter/.windsurf/mcp_config.json  (we've added this for you)
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}
+```
+
+**Cascade prompt that shows the magic:**
+
+```
+Open http://localhost:3000 in the chrome-devtools MCP.
+Click "Sign up", fill in a test email, submit.
+Take a screenshot, read the console, and fix whichever error prevents the redirect.
+```
+
+**Pair with** [Playwright MCP](https://playwright.dev/docs/getting-started-mcp) (driving) while DevTools MCP handles debugging — Steve Kinney's ["driving vs. debugging"](https://stevekinney.com/writing/driving-vs-debugging-the-browser) framing.
+
+### 3. Ralph Wiggum Loop — Persistent Until Green
+
+**What it is:** A `while` loop that calls Cascade repeatedly until tests pass. Named after the Simpsons character because it keeps trying, keeps helping, never gives up. [Steve Kinney's breakdown](https://stevekinney.com/writing/the-ralph-loop) and the viral [r/ClaudeCode thread](https://www.reddit.com/r/ClaudeCode/comments/1q2qvta/share_your_honest_and_thoughtful_review_of_ralph/) are the reference.
+
+**Why it's a wow:** Watched a dev fix 47 failing tests in 23 minutes not by typing — by kicking off a loop and walking away. Controversial (see the skeptics in that thread), but devastating when the checkable outcome is well-defined.
+
+**Windsurf-safe variant** (in [`starter/.windsurf/workflows/ralph-safe.md`](./starter/.windsurf/workflows)):
+
+```bash
+# ralph-safe.sh — kill-switch + max-iterations + cost cap
+MAX_ITERS=${MAX_ITERS:-20}
+COST_CAP_USD=${COST_CAP_USD:-5.00}
+KILLSWITCH="${HOME}/.ralph-stop"
+
+for i in $(seq 1 $MAX_ITERS); do
+  [ -f "$KILLSWITCH" ] && { echo "Killswitch tripped"; break; }
+  pnpm test --silent && { echo "Green at iter $i"; exit 0; }
+  windsurf cascade "The test suite is red. Read the latest failures, fix the code (never the tests unless they're wrong), and stop. Don't try to validate — I'll run tests."
+done
+```
+
+**When NOT to use it:** UI flows that need human judgment. Anything involving money or destructive data. Features that aren't auto-verifiable.
+
+### 4. ast-grep Skill — Structural Code Search
+
+**What it is:** [ast-grep](https://ast-grep.github.io) understands your code's AST, not just text. Ask things like *"find all async functions that don't have error handling"* or *"find all React components using `useEffect` with an empty deps array"*. The [official skill](https://github.com/ast-grep/claude-skill) drops into any `.windsurf/skills/` directory.
+
+**Why it's a wow:** Your refactors stop missing edge cases. Text-based `grep` misses `asyncFunction()` vs `async function name()` vs `const x = async () => {}` — ast-grep catches all three structurally.
+
+**30-second setup:**
+
+```bash
+brew install ast-grep   # or: cargo install ast-grep
+gh skill install ast-grep/claude-skill --to .windsurf/skills/
+```
+
+Add to `AGENTS.md`:
+
+```markdown
+For any code search that requires understanding syntax (not plain text),
+use `ast-grep` instead of `grep` / `ripgrep`. For plain text in comments
+or non-code files, `rg` is still preferred.
+```
+
+Covered in the [ast-grep AI docs](https://ast-grep.github.io/advanced/prompting.html) with an example prompt [originally from Kieran Klaassen on X](https://x.com/kieranklaassen/status/1938453871086682232).
+
+### 5. `/compact` Proactively, With Preservation Instructions
+
+**What it is:** The `/compact` command in Cascade (also in Claude Code) compresses session history once context is about to blow out. The mistake everyone makes: running it when the bar hits 90%. By then the oldest (= most foundational) decisions are already being dropped. [MindStudio's Apr 2 writeup](https://www.mindstudio.ai/blog/claude-code-compact-command-context-management/) is the reference.
+
+**The unlock:** Run `/compact` *with an instruction*, proactively, at the 50–60% mark:
+
+```
+/compact Preserve verbatim: the current plan file path, the AGENTS.md
+invariants I've already cited this session, the 3 design decisions we
+just made about auth, and anything under "Gotchas" in vault/.
+Discard: exploration logs, test runs, tool outputs from rejected paths.
+```
+
+Cascade keeps what matters, drops what doesn't. Your session stays sharp through the full workday instead of degrading after hour 2.
+
+### 6. Linear Agent API — Assignable AI Teammate
+
+**What it is:** Linear's Agent API lets Cascade register as an actual teammate. You assign an issue to it like any human. A webhook fires, Cascade picks up the issue, runs in Plan Mode, posts the plan back to the Linear comment, then implements and opens a PR. Reference implementation in the [viral r/Linear post](https://www.reddit.com/r/Linear/comments/1s4gqdy/linearnative_ai_dev_agent_using_claude_code_mcp/).
+
+**Why it's a wow:** Ticket → PR with zero IDE interaction. Your team sees "Cascade" in the assignee list like any other engineer, with an Agent Session panel showing its work.
+
+**Recipe** (30 lines, [see §19.12](#1912-linear-agent-api-cascade-as-an-assignable-teammate)):
+
+```typescript
+// webhooks/linear.ts
+import { LinearClient } from "@linear/sdk";
+
+app.post("/webhooks/linear", async (req, res) => {
+  const { action, data } = req.body;
+  if (action === "assigned" && data.assignee.id === process.env.CASCADE_USER_ID) {
+    const issue = await linear.issue(data.id);
+    const plan = await cascade.plan(issue.description, { mode: "plan" });
+    await issue.createComment({ body: `## Plan\n${plan}` });
+    await cascade.implement(plan, { issueId: issue.id });
+  }
+  res.json({ ok: true });
+});
+```
+
+Scope the OAuth app with `actor=app`, `app:assignable`, `app:mentionable`.
+
+### 7. LLM Wiki Vault — Persistent, Compounding Memory
+
+**What it is:** The [llm-wiki-vault protocol](https://github.com/MirkoSon/llm-wiki-vault) — Karpathy-advocated alternative to embeddings-based RAG. Plain markdown, git-tracked, agents read/write via explicit workflows defined in `AGENTS.md`. Every session compounds the knowledge base instead of re-discovering it.
+
+**Why it's a wow:** Your third session on a codebase is faster than your first, not slower. Unlike RAG, you can *read* the vault yourself, diff it, version it, grep it. Unlike in-memory, it survives.
+
+**Drop-in vault protocol:** We've packaged this as [`VAULT_PROTOCOL.md`](./VAULT_PROTOCOL.md) — paste it into your `AGENTS.md` and you're done. See §20 for the full pattern.
+
+### 8. prd.md / spec.md — One File Kills Scope Drift
+
+**What it is:** Before any feature, write a `prd.md` (product requirements) or `spec.md` (technical spec) at the repo root or in `plans/`. Cascade reads it at the start of every session. The [anti-drift workflows post](https://vibecoding.app/blog/anti-drift-workflows-vibe-coders-guide) covers it alongside Spec Kit, Planning with Files, and the Ralph Loop.
+
+**Why it's a wow:** The #1 reason AI-coded features end up wrong is the requirements drifted mid-session. A PRD checked into git is the cheapest drift-prevention device ever invented.
+
+**Drop-in template:** [`starter/templates/PRD.template.md`](./starter/templates/PRD.template.md) — 60 lines, 9 sections, skip what doesn't apply.
+
+**Cascade prompt:**
+
+```
+Read plans/prd-checkout-flow.md. If anything is ambiguous, list the
+ambiguities — don't guess. Only once I confirm do we move to the plan.
+```
+
+### 9. Reflection Pattern — Generate → Evaluate → Revise
+
+**What it is:** Make Cascade grade its own output before handing it back. [Research shows](https://toolhalla.ai/blog/reflection-pattern-ai-agents-2026) reflection boosts HumanEval coding accuracy from 80% → 91%. But **naive self-correction makes GSM8K math worse** — use it where there's an external signal (tests, lints, types), not where the model has to judge itself.
+
+**Three variants to pick from:**
+
+| Variant | When | How |
+|---|---|---|
+| **External-signal retry** | Tests, lints, types, compile errors | Loop: generate → run signal → retry with error |
+| **Critic-model review** | Code reviews, security scans | Second agent (different model) critiques the first |
+| **Self-critique** | Drafts, plans, docs | Same agent rewrites with checklist — use sparingly |
+
+Dedicated workflow: [`starter/.windsurf/workflows/reflection-loop.md`](./starter/.windsurf/workflows).
+
+### 10. Playwright MCP — Browser as a First-Class Tool
+
+**What it is:** [Playwright MCP](https://playwright.dev/docs/getting-started-mcp) is the official Microsoft server that exposes Playwright's automation API to Cascade. Unlike Chrome DevTools MCP (debugging), Playwright is for *driving* — scripted clicks, form fills, assertions.
+
+**The combo:** Chrome DevTools MCP + Playwright MCP in the same config = Cascade can drive the browser *and* debug what goes wrong.
+
+**Already wired into the starter kit** — flip the `$disabled_examples` switch in `mcp_config.json`.
+
+### 11. VoltAgent Subagents — 100+ Specialist Recipes
+
+**What it is:** [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents) (16k⭐) — 100+ YAML-frontmatter specialists covering every corner of engineering: `architect-reviewer`, `database-optimizer`, `security-auditor`, `terraform-engineer`, `kubernetes-specialist`, and 95 more. Every file drops straight into `.windsurf/agents/` as a new `@role` subagent.
+
+**Why it's a wow:** You don't have to design your subagent team. You pick five from a list of 100 that's actively maintained. Stellar starting point for specialist teams.
+
+**Recipe:**
+
+```bash
+# Port the top 5 most-useful ones into your Cascade setup
+for agent in architect-reviewer code-reviewer security-auditor performance-engineer test-automator; do
+  curl -sL "https://raw.githubusercontent.com/VoltAgent/awesome-claude-code-subagents/main/categories/04-quality-security/${agent}.md" \
+    -o ".windsurf/agents/${agent}/AGENT.md"
+done
+```
+
+Tweak the `tools:` frontmatter to match Cascade's tool names, change `model: opus` to whatever you pin.
+
+### 12. Prompt-Caching Breakpoints — Engineer for 90% Token Savings
+
+**What it is:** Every long system prompt, AGENTS.md, or sticky context block should hit Anthropic's [prompt cache](https://prompt-caching.ai). Cascade handles caching automatically, but you can *engineer* your setup to maximize hit rate. [Claude Lab's Apr 8 writeup](https://claudelab.net/en/blog/claude-prompt-caching-practical-guide) covers the pattern.
+
+**The unlock — cache-friendly ordering:**
+
+```
+[STATIC — cache hit]        AGENTS.md, invariants, commands
+[STATIC — cache hit]        Per-role AGENT.md
+[STATIC — cache hit]        Relevant vault/ pages
+[SEMI-STATIC — partial]     Current plan file
+[DYNAMIC — fresh every turn] User message, recent tool results
+```
+
+Put stable things first, volatile things last. 90% cheaper on turn 2+. One `AGENTS.md` edit resets the cache, so batch your invariant changes.
+
+### 13. Screenshot-Feedback Visual Iteration
+
+**What it is:** For any UI work, make screenshot-take → AI-describe → AI-fix the loop. Two MCP servers make this trivial: Chrome DevTools MCP (`take_screenshot`) + vision-capable model (Claude Opus 4.6, GPT-5.4, SWE 1.6 can all ingest images).
+
+**Why it's a wow:** The agent *literally sees* the misaligned button. No more "change `mt-4` to `mt-6` and pray."
+
+**Cascade prompt (works today):**
+
+```
+Take a screenshot of localhost:3000/dashboard. Compare it to
+design/dashboard-spec.png. Describe every discrepancy (spacing,
+color, copy, alignment). Fix the top 3 most impactful ones.
+```
+
+Recipe file: [`starter/.windsurf/workflows/visual-iteration.md`](./starter/.windsurf/workflows).
+
+### 14. Markdown Plan Files > Built-in Planners
+
+**What it is:** Andrew Shu's [viral post](https://www.ashu.co/markdown-plan-files-vibe-coding/) — an AGENTS.md block that forces every non-trivial task through a file-based plan instead of Cursor's Plan panel or Claude's in-memory tasks.
+
+**Why it's a wow:** Same reason as #1, but broader — it's a one-paragraph change to AGENTS.md that transforms how Cascade approaches multi-step work across every repo you own.
+
+**The block to paste:**
+
+```markdown
+## How You Plan
+
+Before changing more than one file:
+
+1. Create `plans/<YYYY-MM-DD>-<slug>.md` with numbered subtasks
+2. Each subtask: one verb, one file-or-directory scope, one acceptance criterion
+3. Commit the empty plan before any code change — the plan is the contract
+4. Work one subtask at a time; do not batch
+5. When blocked or uncertain, add a "Questions" section to the plan and stop
+
+Never skip the plan. If you think a task is too small for a plan, ask.
+```
+
+Source: [0xandrewshu/ai-utils/rule-markdown-plan](https://github.com/0xandrewshu/ai-utils/tree/main/rule-markdown-plan).
+
+---
+
+**All 14 are wired into the starter kit** — if you installed `starter/` already, most of the infrastructure is already there. The individual sections below go deeper on the features each move builds on.
+
+---
+
 ## Get Started
 
 ### Install Windsurf
@@ -137,6 +425,7 @@ Key things to know right now:
 
 ## Table of Contents
 
+0. [**Unlocked Power Moves**](#unlocked-power-moves) — The 14 techniques actually going viral right now, each with a copy-paste recipe
 1. [Cascade Modes: Code / Plan / Ask](#1-cascade-modes-code--plan--ask) — When to use each, plan files, implement handoff
 2. [Agent Command Center & Spaces](#2-agent-command-center--spaces) — Multi-agent Kanban, task-level grouping, context inheritance
 3. [Devin in Windsurf — Cloud Delegation](#3-devin-in-windsurf--cloud-delegation) — When to hand off, planning workflow, pricing model
@@ -1983,6 +2272,65 @@ Combined with the auto-capture hook above, your agent gets smarter every day.
 
 **Cascade equivalent:** Run a watcher (`chokidar`/`watchexec`) alongside your LightRAG server that reindexes on change — no Cascade-side config needed. Or use the LightRAG REST API and fire off updates from `post_write_code` hooks when vault files change.
 
+### 19.12 Linear Agent API — Cascade as an Assignable Teammate
+
+**What the big harnesses do:** Hermes/OpenClaw expose a webhook-triggered queue so Linear/Jira issues route to the agent automatically. No IDE interaction.
+
+**Cascade equivalent:** Linear's official [Agent API](https://linear.app/docs/agents) (GA April 2026) lets you register Cascade as a first-class teammate. Webhook → orchestrator → `windsurf cascade` in plan mode → plan posted as a Linear comment → implement → PR. Reference setup described in the viral [r/Linear writeup](https://www.reddit.com/r/Linear/comments/1s4gqdy/linearnative_ai_dev_agent_using_claude_code_mcp/).
+
+**Minimal orchestrator (Node, ~30 lines):**
+
+```typescript
+// apps/linear-orchestrator/src/webhook.ts
+import express from "express";
+import { LinearClient } from "@linear/sdk";
+import { spawn } from "node:child_process";
+
+const app = express();
+app.use(express.json());
+
+const linear = new LinearClient({ apiKey: process.env.LINEAR_API_KEY! });
+const CASCADE_USER_ID = process.env.CASCADE_USER_ID!;
+
+app.post("/webhooks/linear", async (req, res) => {
+  const { action, data } = req.body;
+  if (action !== "assigned" || data.assignee?.id !== CASCADE_USER_ID) {
+    return res.json({ ok: true });
+  }
+  const issue = await linear.issue(data.id);
+
+  // Plan phase — Plan Mode, post plan back to Linear
+  const plan = await runCascade([
+    "cascade", "--mode=plan",
+    `Plan this Linear issue in plans/${issue.identifier}.md. Post plan to stdout.`,
+    "--context", `${issue.title}\n\n${issue.description}`,
+  ]);
+  await issue.createComment({ body: `## Plan\n${plan}\n\nReply with changes or mention me to start implementation.` });
+
+  // (Optional) Implement phase — kicks off on explicit mention/comment
+});
+
+function runCascade(args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const ps = spawn(args[0], args.slice(1), { cwd: process.env.REPO_ROOT });
+    let out = "";
+    ps.stdout.on("data", d => out += d);
+    ps.on("exit", code => code === 0 ? resolve(out) : reject(new Error(`exit ${code}`)));
+  });
+}
+
+app.listen(8787);
+```
+
+**Setup:**
+
+1. Register a Linear OAuth app with scopes `actor=app`, `app:assignable`, `app:mentionable`
+2. Expose the webhook with Cloudflare Tunnel (`cloudflared tunnel run`) — no static IP needed
+3. Set `CASCADE_USER_ID` to the app user id Linear returns
+4. Install the [Linear MCP](https://linear.app/docs/mcp) server in `.windsurf/mcp_config.json` so Cascade can read/update issues during implementation too
+
+Cascade now shows up in the Linear assignee dropdown like any teammate. Assign → plan → comment → PR, without opening the IDE.
+
 ---
 
 ### Bottom Line
@@ -2582,6 +2930,13 @@ Covered in depth in [§23](#23-observability--evals-for-cascade) with a working 
 | [Anthropic — Subagents docs](https://docs.anthropic.com/en/docs/claude-code/sub-agents) | Canonical description of the pattern |
 | [Supermemory — What is Context Engineering](https://supermemory.ai/blog/what-is-context-engineering-complete-guide/) | The four-moves framework |
 | [Epsilla — RAG is Dead](https://www.epsilla.com/blogs/karpathy-agentic-wiki-beyond-rag-enterprise-memory) | Why agentic wiki > embeddings-only RAG |
+| [Steve Kinney — The Ralph Wiggum Loop](https://stevekinney.com/writing/the-ralph-loop) | The persistent-until-green pattern — with skeptics |
+| [Steve Kinney — Driving vs. Debugging the Browser](https://stevekinney.com/writing/driving-vs-debugging-the-browser) | Playwright MCP vs Chrome DevTools MCP — when each wins |
+| [MindStudio — /compact command](https://www.mindstudio.ai/blog/claude-code-compact-command-context-management/) | Proactive compaction + preservation instructions |
+| [ToolHalla — Reflection Pattern](https://toolhalla.ai/blog/reflection-pattern-ai-agents-2026) | 80% → 91% HumanEval with structured reflection |
+| [vibecoding.app — Anti-Drift Workflows](https://vibecoding.app/blog/anti-drift-workflows-vibe-coders-guide) | PRD, Spec Kit, Planning-with-Files, Ralph Loop side-by-side |
+| [Andrew Shu — Markdown Plan Files](https://www.ashu.co/markdown-plan-files-vibe-coding/) | Why file-based plans beat in-IDE planners |
+| [Karpathy — LLM Wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | The original call for an agentic wiki |
 
 ### 🧰 Companion Harness Guides (if you use more than one)
 
