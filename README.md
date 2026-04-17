@@ -264,13 +264,18 @@ import { LinearClient } from "@linear/sdk";
 
 app.post("/webhooks/linear", async (req, res) => {
   const { action, data } = req.body;
-  if (action === "assigned" && data.assignee?.id === process.env.CASCADE_USER_ID) {
+  if (action !== "assigned" || data.assignee?.id !== process.env.CASCADE_USER_ID) {
+    return res.json({ ok: true });
+  }
+  res.json({ ok: true }); // ACK immediately — plan/implement below can take minutes
+  try {
     const issue = await linear.issue(data.id);
     const plan = await cascade.plan(issue.description, { mode: "plan" });
     await issue.createComment({ body: `## Plan\n${plan}` });
     await cascade.implement(plan, { issueId: issue.id });
+  } catch (err) {
+    console.error("cascade failed for issue", data.id, err); // never rethrow — retries spawn duplicates
   }
-  res.json({ ok: true });
 });
 ```
 
