@@ -23,7 +23,7 @@ windsurf-unlocked starter installer
 
 Usage:
   install.sh               Install into \$PWD
-  install.sh --update      Refresh skills/hooks/workflows, preserve AGENTS.md / vault / mcp_config
+  install.sh --update      Refresh skills/hooks/workflows, preserve AGENTS.md / vault / plans / templates / mcp_config
   install.sh --dir <path>  Install into a specific directory
 
 Flags:
@@ -93,26 +93,31 @@ if [[ $UPDATE -eq 0 ]]; then
 fi
 
 if [[ $UPDATE -eq 0 ]]; then
-  bold "installing AGENTS.md + vault/ + plans/ + templates/"
+  bold "installing AGENTS.md + vault/"
   copy_skip_if_exists "$STARTER_SRC/AGENTS.md" "AGENTS.md"
   if [[ ! -d "vault" ]]; then
     copy_tree "$STARTER_SRC/vault" "vault"
   else
     yellow "  skip vault/ (already exists)"
   fi
-  if [[ -d "$STARTER_SRC/plans" ]]; then
-    if [[ ! -d "plans" ]]; then
-      copy_tree "$STARTER_SRC/plans" "plans"
-    else
-      yellow "  skip plans/ (already exists)"
-    fi
+fi
+
+# plans/ and templates/ are ensured on both fresh install AND --update,
+# because new skills/workflows may reference them. Existing user content
+# is always preserved via the skip-if-exists guards.
+bold "ensuring plans/ + templates/"
+if [[ -d "$STARTER_SRC/plans" ]]; then
+  if [[ ! -d "plans" ]]; then
+    copy_tree "$STARTER_SRC/plans" "plans"
+  else
+    yellow "  skip plans/ (already exists)"
   fi
-  if [[ -d "$STARTER_SRC/templates" ]]; then
-    if [[ ! -d "templates" ]]; then
-      copy_tree "$STARTER_SRC/templates" "templates"
-    else
-      yellow "  skip templates/ (already exists)"
-    fi
+fi
+if [[ -d "$STARTER_SRC/templates" ]]; then
+  if [[ ! -d "templates" ]]; then
+    copy_tree "$STARTER_SRC/templates" "templates"
+  else
+    yellow "  skip templates/ (already exists)"
   fi
 fi
 
