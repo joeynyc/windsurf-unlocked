@@ -25,4 +25,4 @@ Move completed plans to `plans/archive/<year>/` if you want to keep them searcha
 - Skill: [`planning-with-files`](../.windsurf/skills/planning-with-files/SKILL.md)
 - Template: [`PRD.template.md`](../templates/PRD.template.md)
 - Workflow: [`prd-driven`](../.windsurf/workflows/prd-driven.md)
-- Guide: [§1 Cascade Modes](../../README.md#1-cascade-modes-code--plan--ask)
+- Guide: [§1 Cascade Modes](https://github.com/OnlyTerp/windsurf-unlocked#1-cascade-modes-code--plan--ask)

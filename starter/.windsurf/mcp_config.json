@@ -35,11 +35,6 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"]
     },
-    "puppeteer": {
-      "$doc": "Browser automation — pair with the Windsurf Browser for repeatable flows",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
-    },
     "chrome-devtools": {
       "$doc": "Google's official chrome-devtools-mcp (35k⭐). Gives Cascade screenshots, console, DOM, perf traces. Docs: https://github.com/ChromeDevTools/chrome-devtools-mcp",
       "command": "npx",
@@ -51,6 +46,11 @@
       "args": ["-y", "@microsoft/mcp-playwright"]
     },
     "$disabled_examples": {
+      "puppeteer": {
+        "$doc": "Puppeteer MCP — alternative to Playwright. Enable only if you prefer Puppeteer; otherwise the chrome-devtools + playwright pair covers the same surface without the tool-ceiling hit.",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      },
       "azure": {
         "$doc": "Azure MCP Server 2.0 GA — 276 tools across 57 services. Uncomment and configure.",
         "transport": "streamable-http",

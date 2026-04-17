@@ -118,7 +118,7 @@ exit 4
 
 ## Guardrails (Non-Negotiable)
 
-1. **Worktree-only.** Never run on your main/develop branch. Use [§11 Worktrees](../../../README.md#11-worktrees--parallel-cascade) to isolate.
+1. **Worktree-only.** Never run on your main/develop branch. Use [§11 Worktrees](https://github.com/OnlyTerp/windsurf-unlocked#11-worktrees--parallel-cascade) to isolate.
 2. **Killswitch file.** `touch ~/.ralph-stop` from any terminal stops the loop at the next iteration.
 3. **Iteration cap.** Default 20. If it hasn't gone green by then, something is structurally wrong.
 4. **Cost cap.** Default $5. Sanity bound on runaway spend.

@@ -88,4 +88,4 @@ Not every feature needs all three. A tiny fix needs none. A public-API-breaking 
 
 ## Credits
 
-Pattern from [prd.md by subtle.so](https://www.subtle.so/prd-md), [vibecoding.app's anti-drift guide](https://vibecoding.app/blog/anti-drift-workflows-vibe-coders-guide), and the broader Spec-Driven Development movement covered in [§21](../../../README.md#21-spec-driven-development-with-cascade).
+Pattern from [prd.md by subtle.so](https://www.subtle.so/prd-md), [vibecoding.app's anti-drift guide](https://vibecoding.app/blog/anti-drift-workflows-vibe-coders-guide), and the broader Spec-Driven Development movement covered in [§21](https://github.com/OnlyTerp/windsurf-unlocked#21-spec-driven-development-with-cascade).
