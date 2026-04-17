@@ -2315,6 +2315,8 @@ function runCascade(args: string[]): Promise<string> {
     const ps = spawn(args[0], args.slice(1), { cwd: process.env.REPO_ROOT });
     let out = "";
     ps.stdout.on("data", d => out += d);
+    ps.stderr.on("data", d => process.stderr.write(d));   // drain stderr so the child doesn't deadlock on a full pipe
+    ps.on("error", reject);                               // fires when the binary is missing or unspawnable
     ps.on("exit", code => code === 0 ? resolve(out) : reject(new Error(`exit ${code}`)));
   });
 }
