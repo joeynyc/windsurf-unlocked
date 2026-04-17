@@ -2301,7 +2301,7 @@ app.post("/webhooks/linear", async (req, res) => {
 
   // Plan phase — Plan Mode, post plan back to Linear
   const plan = await runCascade([
-    "cascade", "--mode=plan",
+    "windsurf", "cascade", "--mode=plan",
     `Plan this Linear issue in plans/${issue.identifier}.md. Post plan to stdout.`,
     "--context", `${issue.title}\n\n${issue.description}`,
   ]);

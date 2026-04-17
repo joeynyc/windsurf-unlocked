@@ -108,7 +108,11 @@ if [[ $UPDATE -eq 0 ]]; then
     fi
   fi
   if [[ -d "$STARTER_SRC/templates" ]]; then
-    copy_tree "$STARTER_SRC/templates" "templates"
+    if [[ ! -d "templates" ]]; then
+      copy_tree "$STARTER_SRC/templates" "templates"
+    else
+      yellow "  skip templates/ (already exists)"
+    fi
   fi
 fi
 

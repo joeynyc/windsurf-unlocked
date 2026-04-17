@@ -43,7 +43,7 @@ LOGDIR=".ralph-logs/$(date +%s)"
 mkdir -p "$LOGDIR"
 
 # Pre-flight safety checks
-git symbolic-ref --short HEAD | grep -qv '^\(main\|master\|develop\)$' \
+git symbolic-ref --short HEAD | grep -Eqv '^(main|master|develop)$' \
   || { echo "ralph refuses to run on shared branches"; exit 1; }
 [ -z "$(git status --porcelain)" ] \
   || { echo "ralph refuses to run with a dirty worktree"; exit 1; }

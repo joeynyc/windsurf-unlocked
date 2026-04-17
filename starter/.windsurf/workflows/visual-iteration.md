@@ -16,7 +16,7 @@ For any UI/frontend work, Cascade should see what it built. Two MCP servers plus
 | **Vision-capable model** | Claude Opus 4.6, GPT-5.4, SWE 1.6 all ingest images |
 | **Your running app** | localhost:3000 (or wherever) |
 
-Both MCP servers are pre-configured in [`starter/.windsurf/mcp_config.json`](../mcp_config.json) — flip them on.
+Both MCP servers are already enabled in [`starter/.windsurf/mcp_config.json`](../mcp_config.json) — no extra setup needed.
 
 ## The Loop
 
