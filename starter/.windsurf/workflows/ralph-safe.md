@@ -43,8 +43,15 @@ LOGDIR=".ralph-logs/$(date +%s)"
 mkdir -p "$LOGDIR"
 
 # Pre-flight safety checks
-git symbolic-ref --short HEAD | grep -Eqv '^(main|master|develop)$' \
-  || { echo "ralph refuses to run on shared branches"; exit 1; }
+# `git symbolic-ref` returns non-zero on a detached HEAD (common in worktrees
+# and CI checkouts); fall back to empty so `pipefail` doesn't misreport the
+# state as "shared branch". An empty BRANCH passes the blocklist check — the
+# concern here is protecting named shared branches, not every ref.
+BRANCH="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
+if echo "$BRANCH" | grep -Eq '^(main|master|develop)$'; then
+  echo "ralph refuses to run on shared branches (current: $BRANCH)"
+  exit 1
+fi
 [ -z "$(git status --porcelain)" ] \
   || { echo "ralph refuses to run with a dirty worktree"; exit 1; }
 
