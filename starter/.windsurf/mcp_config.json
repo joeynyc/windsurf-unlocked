@@ -1,0 +1,78 @@
+{
+  "$comment": [
+    "Curated MCP servers for the windsurf-unlocked starter kit.",
+    "All servers use Streamable HTTP (not SSE — deprecated April 2026).",
+    "Env vars referenced via ${VAR} — set them in your shell profile.",
+    "Docs: https://github.com/OnlyTerp/windsurf-unlocked#6-mcp-server-integration",
+    "Remove the ones you don't use to stay under the 100-tool ceiling."
+  ],
+  "mcpServers": {
+    "github": {
+      "$doc": "https://github.com/github/github-mcp-server — v0.33.0 adds OAuth auto-trigger",
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "$doc": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    },
+    "fetch": {
+      "$doc": "Read arbitrary URLs — replaces bespoke scraping",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+    "sqlite": {
+      "$doc": "Local SQLite — great for the vault/ and for quick data exploration",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "${workspaceFolder}/vault/wiki.db"]
+    },
+    "memory": {
+      "$doc": "Official MCP memory server — persistent key-value store",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "puppeteer": {
+      "$doc": "Browser automation — pair with the Windsurf Browser for repeatable flows",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+    },
+    "$disabled_examples": {
+      "azure": {
+        "$doc": "Azure MCP Server 2.0 GA — 276 tools across 57 services. Uncomment and configure.",
+        "transport": "streamable-http",
+        "url": "${AZURE_MCP_URL}",
+        "headers": { "Authorization": "Bearer ${AZURE_MCP_TOKEN}" }
+      },
+      "keboola": {
+        "$doc": "Keboola data pipelines — reference implementation of Streamable HTTP",
+        "transport": "streamable-http",
+        "url": "${KEBOOLA_MCP_URL}",
+        "headers": { "Authorization": "Bearer ${KEBOOLA_TOKEN}" }
+      },
+      "playwright": {
+        "$doc": "Playwright MCP — E2E browser tests",
+        "command": "npx",
+        "args": ["-y", "@microsoft/mcp-playwright"]
+      },
+      "postgres": {
+        "$doc": "Read-only Postgres — safe to give Cascade",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "${DATABASE_READONLY_URL}"
+        ]
+      },
+      "slack": {
+        "$doc": "Slack — for cross-team context",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-slack"],
+        "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}" }
+      }
+    }
+  }
+}
