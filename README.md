@@ -39,6 +39,30 @@ Bumping to 2.0 is worth it for the Agent Command Center alone, but the sleeper f
 
 ---
 
+## What's Hot Right Now (April 14–17, 2026)
+
+Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosystem moved. Here's what's trending *this week* and where it lands in this guide:
+
+| Drop / trend | Date | What it is | Where it lands |
+|---|---|---|---|
+| [**`gh skill` CLI**](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli) | **Apr 16** | New GitHub CLI command to discover / install / update / publish [`SKILL.md`](https://agentskills.io) skills across Copilot, Claude Code, Cursor, Codex, Gemini CLI — version-pinned, content-addressed, portable provenance. Drop into Windsurf's `.windsurf/skills/` with one flag. | [§22 Skills Ecosystem](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
+| [**mvanhorn/last30days-skill**](https://github.com/mvanhorn/last30days-skill) | GitHub Trending #1 Apr 16, 22k⭐ | Viral agent skill that searches Reddit / X / YouTube / HN / TikTok / Polymarket / GitHub in parallel and has an AI judge synthesize one brief. Ships installers for Claude Code, OpenClaw, Hermes. Works in Cascade with a two-line change. | [§22](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
+| [**Claude Code Subagents**](https://docs.anthropic.com/en/docs/claude-code/sub-agents) pattern | Exploded Apr 12–14 | `.claude/agents/*.md` per-role specialists with isolated context windows. Every competing tool is copying it. Cascade emulates via `.windsurf/agents/` + worktrees. | [§17 Custom Subagents](#17-custom-subagents) |
+| [**Karpathy's LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) + [Context Engineering](https://towardsdatascience.com/deep-dive-into-context-engineering-for-ai-agents/) | Apr 4–9 | New discipline: *offload, retrieve, compress, isolate*. "RAG is dead, long live the Agentic Wiki." Claude Code's 3-tier compaction engine reverse-engineered publicly. | [§20 Context Engineering & the Agentic Wiki](#20-context-engineering--the-agentic-wiki) |
+| [**Spec Kit v0.5.0**](https://github.com/github/spec-kit) / SDD | Apr 4–11 | GitHub's `specify init` + seven `/speckit.*` slash commands. Spec-Driven Development went mainstream this month, with AWS Kiro, Tessl, and IBM all shipping adaptations. | [§21 Spec-Driven Development](#21-spec-driven-development-with-cascade) |
+| [**MCP SSE → Streamable HTTP**](https://www.channel.tel/blog/mcp-sse-to-streamable-http-migration) migration | Keboola dropped Apr 1, Atlassian Jun 30 | Every remote MCP server needs to migrate. Affects your `mcp_config.json` *today*. | [§6 MCP](#6-mcp-server-integration), [§24 Gotchas](#24-gotchas--known-issues-april-2026) |
+| [**GitHub MCP Server 0.33.0**](https://github.com/github/github-mcp-server/releases/tag/v0.33.0) | Apr 14 | Resolve review threads, `path` / `since` / `until` filters on `list_commits`, OSS logging adapter for HTTP. | [§6 MCP](#6-mcp-server-integration) |
+| [**Azure MCP Server 2.0 GA**](https://devblogs.microsoft.com/azure-sdk/announcing-azure-mcp-server-2-0-stable-release) | Apr 10 | 276 tools across 57 Azure services, self-hosted remote MCP. | [§6 MCP](#6-mcp-server-integration) |
+| [**Instruction-file hierarchy**](https://amitray.com/claude-md-vs-agents-md-memory-md-skills-md-context-md-guide-2026/) (CLAUDE.md / AGENTS.md / MEMORY.md / SKILLS.md / CONTEXT.md) | Apr 14 | The pattern going around the agent-coding Twitter/X — distinct jobs for each file. Cascade already supports all of them; the docs just hadn't caught up. | [§7 AGENTS.md hierarchy](#the-instruction-file-hierarchy-apr-2026) |
+| [**Cognition SWE 1.6 post-mortem**](https://cognition.ai/blog/swe-1-6) | Apr 7 | Cognition explicitly trained SWE 1.6 to *prefer parallel tool calls, avoid looping, use its own tools over shell*. The behaviors you want to reinforce in your rules. | [§16 Model Optimization](#16-model-optimization--swe-16-adaptive-battle-groups) |
+| [**GPT-5.3-Codex-Spark**](https://codex.danielvaughan.com/2026/03/31/codex-spark-cerebras-real-time-coding/) @ 1000 tok/s | Feb 12 (blew up Mar/Apr) | OpenAI's Cerebras-hosted speed model. Direct competitor to SWE 1.6 Fast. Context for why the SWE 1.6 Fast promo matters *right now*. | [§16](#16-model-optimization--swe-16-adaptive-battle-groups) |
+| [**Parallel / racing agents**](https://agent-wars.com/news/2026-04-10-twill-races-coding-agents-best-pr) (Twill.ai, AgentBox, ctx) | Apr 10 | Running N agents on one task in parallel and picking the winning PR is going mainstream. Cascade's [Arena Mode](#12-arena-mode--side-by-side-models) + [Worktrees](#11-worktrees--parallel-cascade) already do this. | [§12](#12-arena-mode--side-by-side-models), [§17](#17-custom-subagents) |
+| [**Observability stack**](https://agenticcareers.co/blog/ai-agent-observability-stack-2026) (LangSmith / Langfuse / Arize / Helicone / Braintrust) | Late Mar – Apr | 67% of AI-engineer listings now require agent observability experience. Cascade hooks can feed any of them. | [§23 Observability & Evals](#23-observability--evals-for-cascade) |
+
+**Bottom line:** if your AI-coding guide was written before April 14, 2026, it's already missing at least three viral primitives (`gh skill`, the subagents pattern, the SSE deprecation). This one is current.
+
+---
+
 ## Get Started
 
 ### Install Windsurf
@@ -82,8 +106,13 @@ Key things to know right now:
 17. [Custom Subagents](#17-custom-subagents) — Personality profiles for specialized tasks
 18. [Real-World Configurations](#18-real-world-configurations) — Production MCP servers and patterns
 19. [Harness Parity: Hermes/OpenClaw Features in Cascade](#19-harness-parity-hermesopenclaw-features-in-cascade) — Graph RAG, vault memory, auto-capture, multi-provider, Telegram, observability — all inside Windsurf
-20. [Troubleshooting](#20-troubleshooting) — Common issues and fixes
-21. [Feature Matrix](#feature-matrix) — Everything at a glance
+20. [Context Engineering & the Agentic Wiki](#20-context-engineering--the-agentic-wiki) — The four moves, Karpathy's wiki pattern, Claude Code's 3-tier compaction
+21. [Spec-Driven Development with Cascade](#21-spec-driven-development-with-cascade) — Spec Kit v0.5.0, `/speckit.*` commands, native Cascade SDD flow
+22. [Skills Ecosystem — `gh skill`, agentskills.io, Viral Skills](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) — Skills you should install *today*
+23. [Observability & Evals for Cascade](#23-observability--evals-for-cascade) — Langfuse, Braintrust, `rules_applied` telemetry
+24. [Gotchas & Known Issues (April 2026)](#24-gotchas--known-issues-april-2026) — Current quirks worth knowing
+25. [Troubleshooting](#25-troubleshooting) — Common issues and fixes
+26. [Feature Matrix](#feature-matrix) — Everything at a glance
 
 ---
 
@@ -535,6 +564,59 @@ Teams/Enterprise admins can:
 
 See the admin docs in your Teams settings for details.
 
+### SSE Is Deprecated — Migrate to Streamable HTTP (April 2026)
+
+The MCP transport layer is consolidating fast. If your `mcp_config.json` has `"transport": "sse"` on any remote server, that integration is on borrowed time:
+
+- **Keboola** dropped SSE support April 1, 2026
+- **Atlassian** deadline is June 30, 2026
+- Every new MCP server shipped in 2026 only supports **Streamable HTTP** (single endpoint, stateful sessions via `Mcp-Session-Id` header, optional server-initiated streaming)
+- [The MCP spec formally deprecated HTTP+SSE transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports) in the 2025-06-18 revision
+
+Cascade supports both. Update your remote configs:
+
+```jsonc
+// OLD — deprecated
+{
+  "mcpServers": {
+    "some-saas": {
+      "transport": "sse",
+      "url": "https://api.example.com/mcp/sse"
+    }
+  }
+}
+
+// NEW — Streamable HTTP
+{
+  "mcpServers": {
+    "some-saas": {
+      "transport": "streamable-http",
+      "url": "https://api.example.com/mcp"
+    }
+  }
+}
+```
+
+For **your own servers**: the [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) ships `StreamableHTTPServerTransport` — one route instead of two, proper proxy behavior, no load-balancer stickiness required. Known gotcha: SDK 1.25–1.27 has a regression where sessions die on TCP keepalive timeout; pin to 1.24.x until it's patched, or keep an SSE GET stream open during idle. Python: `mcp.server.streamable_http` since SDK 1.9.
+
+**Why this matters for Cascade specifically:** several MCPs in the public Marketplace still list SSE transport. When they go dark, your workflows silently lose tools. Audit your active servers at the start of every sprint until Q3 2026.
+
+### New MCP Servers Worth Adding (April 2026)
+
+These landed in the last two weeks and are worth a slot in your config:
+
+| Server | Ships | Why it's worth adding |
+|---|---|---|
+| [GitHub MCP Server 0.33.0](https://github.com/github/github-mcp-server/releases/tag/v0.33.0) | Apr 14 | Resolves review threads, `path` / `since` / `until` filters on `list_commits`, OAuth auto-trigger, OSS logging adapter for HTTP. Replaces any hand-rolled `gh` wrapper you had. |
+| [Azure MCP Server 2.0 GA](https://devblogs.microsoft.com/azure-sdk/announcing-azure-mcp-server-2-0-stable-release) | Apr 10 | **276 tools across 57 Azure services.** Self-hosted remote MCP — deploy it where your team is. Kills every bespoke Azure wrapper script. |
+| [Keboola MCP](https://github.com/keboola/mcp-server) | Streamable HTTP only as of Apr 1 | Data pipelines, warehouses, flows. Good reference implementation of the new transport. |
+| [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Updated Apr 2026 | Browser automation for Cascade beyond the built-in [Windsurf Browser](#13-web-search--windsurf-browser) — real Chrome, not Chromium-embedded. |
+| [AWS MCP Suite](https://github.com/awslabs/mcp) | Ongoing | Official AWS MCP servers for Bedrock, Cost Explorer, Lambda, ECS. Streamable HTTP. |
+| [Playwright MCP](https://github.com/microsoft/playwright-mcp) | v1.1.0 Apr 2026 | E2E browser tests scripted by Cascade. Plays nicer than the Windsurf Browser for repeatable flows. |
+| [fastmcp](https://github.com/jlowin/fastmcp) | 2.x stable | Not a server — the best Python SDK for *writing* MCP servers. Faster than the official SDK and Streamable-HTTP-first. |
+
+**Dynamic tool loading.** GPT-5.4 added first-class `search_tools`. If your custom MCP has >30 tools, implement a `list_tools` endpoint that returns only relevant tools per query instead of dumping everything into Cascade's context. This alone frees up 5–15k tokens per turn. The [Azure MCP Server](https://github.com/Azure/azure-mcp) is the canonical example — 276 tools, but Cascade only ever sees the handful relevant to the current prompt.
+
 ### MCP Server Quality Rules
 
 | Rule | Why |
@@ -742,6 +824,35 @@ Place an `AGENTS.md` file in any directory. Cascade reads it automatically when 
 - Keep AGENTS.md files short and specific to the directory
 - Use them for rules that would be repetitive to state in every prompt
 - Subdirectory AGENTS.md supplements (doesn't replace) the root file
+
+### The Instruction File Hierarchy (Apr 2026)
+
+A file-hierarchy convention is going around the agent-coding space — cross-agent guides now reference **five** different Markdown files with distinct jobs. Most people are only using one. Cascade supports all of them today; the docs just hadn't caught up. Here's the map:
+
+| File | Scope | Cascade reads it? | Use it for |
+|---|---|---|---|
+| `AGENTS.md` | Directory-scoped rules, committed to repo | **Yes** — native, reads the whole tree | Project conventions, guardrails, stack info, commands to run |
+| `CLAUDE.md` | Anthropic/Claude Code convention for the same thing | **Yes** — Cascade picks it up as a fallback when `AGENTS.md` is absent | Keep in sync with `AGENTS.md` if you also work in Claude Code |
+| `.windsurfrules` | Legacy Windsurf project rules file | **Yes** — still supported | Free-form prose rules. Commit to repo. |
+| `SKILL.md` (inside `.windsurf/skills/<name>/`) | Per-skill instructions + bundled resources | **Yes** — via the [Skills system](#5-skills-system) | Reusable multi-step procedures, scripts, resources |
+| `MEMORY.md` (convention, not required) | Long-running learned facts | Via `@mention` + rules | Pin key decisions you want the agent to always recall — Cascade's built-in [Memories](#9-memories--rules) is the preferred way, but a repo-committed `MEMORY.md` works if you want team-shared memory |
+| `CONTEXT.md` (convention) | Current-session snapshot | Via `@mention` | "Here's what's happening right now" — swap per session, don't commit |
+
+**The rule of thumb that's going viral:** `AGENTS.md` is the *what not to do* (rules), `SKILL.md` is the *how to do it* (procedures), `MEMORY.md` is *what we already decided* (facts), `CONTEXT.md` is *where we are now* (state). Cascade's built-in [Memories & Rules](#9-memories--rules) handles personal preferences that shouldn't be in the repo at all.
+
+**One-shot cross-agent compatibility.** If you also work in Claude Code, Cursor, Codex, or Gemini CLI, symlink a single file so every agent reads the same rules:
+
+```bash
+# From your repo root
+ln -s AGENTS.md CLAUDE.md
+ln -s AGENTS.md .cursorrules
+ln -s AGENTS.md GEMINI.md
+ln -s AGENTS.md .windsurfrules
+```
+
+Change one file, every agent in every tool updates. This is what the [`@include` directive proposal for Codex](https://github.com/openai/codex/issues/17401) is trying to solve more cleanly — until it ships, symlinks are the answer.
+
+**Gotcha** ([#305](https://github.com/Exafunction/codeium/issues/305)): opening a workspace with nested git repos causes Cascade to load the rules file 2×–9× per response, burning tokens. Either flatten the layout or add `"codeium.rulesFile": "<single-path>"` to workspace settings until this is patched. See [§24 Gotchas](#24-gotchas--known-issues-april-2026).
 
 ---
 
@@ -1435,6 +1546,81 @@ Type `@terse` in Cascade to switch to that personality.
 | `reviewer` | PR-style review comments, no code changes |
 | `architect` | Plan Mode bias, asks many clarifying questions |
 
+### Bringing the `.claude/agents/` Subagent Pattern to Cascade
+
+The pattern that went viral this week (Apr 12–14, 2026) is Claude Code's **subagents** — per-role specialists in `.claude/agents/*.md` with their own system prompts, tool allow-lists, and **isolated context windows**. Cursor, VS Code Copilot (`runSubagent`), and Gemini CLI have all shipped clones. Cascade doesn't have native delegation, but the *outcome* is achievable today with three building blocks you already have:
+
+1. **`.windsurf/agents/<role>/AGENT.md`** — the personality + tool/model pinning (above)
+2. **[Worktrees](#11-worktrees--parallel-cascade)** — isolated filesystem + session per subagent so context doesn't bleed
+3. **[Agent Command Center](#2-agent-command-center--spaces)** — the Kanban view that shows all of them running in parallel
+
+**Recipe: an 8-subagent "team" for a real project.**
+
+```
+.windsurf/
+└── agents/
+    ├── architect/AGENT.md   # Plan Mode only, SWE 1.6, asks many clarifying Qs
+    ├── implementer/AGENT.md # Code Mode, SWE 1.6 Fast, terse, parallel tool calls
+    ├── reviewer/AGENT.md    # Read-only, PR-style comments, Claude Opus 4.6 pin
+    ├── tester/AGENT.md      # Generates + runs test suite, blocks on coverage <80%
+    ├── security/AGENT.md    # Threat model + vuln scan, read-only
+    ├── docs/AGENT.md        # Updates README/AGENTS.md/CHANGELOG, no code
+    ├── perf/AGENT.md        # Benchmarks + regressions, runs profiler, reports only
+    └── shipper/AGENT.md     # PR description, release notes, deploy checklist
+```
+
+Each `AGENT.md` follows the same YAML frontmatter convention as Claude's subagents:
+
+```markdown
+---
+name: reviewer
+description: Read-only PR-style reviewer. Focus on correctness, security, testing gaps, and code smell. Never edits files. Invoke after any non-trivial diff.
+model: claude-opus-4.6
+tools: [read_file, grep, search_code, web_search]
+---
+
+# Reviewer Agent
+
+## Review Checklist
+1. Correctness: does the change do what the PR claims?
+2. Security: injection, auth, secrets, PII logging
+3. Tests: what's missing? What edge cases aren't covered?
+4. Code smell: dead code, duplication, unclear names, overly clever constructs
+5. Performance: N+1s, unbounded loops, sync calls on hot paths
+
+## Output Format
+- One inline comment per issue, grouped by severity (BLOCKER / MAJOR / MINOR / NIT)
+- End with a summary and an explicit "LGTM" or "CHANGES REQUESTED"
+
+## Never
+- Edit files
+- Approve your own work (if invoked on your own diff, say so)
+- Rubber-stamp — if you have nothing to say, say that and stop
+```
+
+**Running them in parallel.** Kick off 3–4 at once via [Worktrees](#11-worktrees--parallel-cascade) inside a single [Space](#2-agent-command-center--spaces) — architect plans in worktree A, implementer codes in worktree B against the plan, reviewer reviews the PR in worktree C, tester runs the suite in worktree D. The Agent Command Center shows all of them streaming live.
+
+**Why this beats `.claude/agents/`:**
+- You keep SWE 1.6 Fast's 950 tok/s for the implementer while pinning the reviewer to Claude Opus 4.6 (the current SWE-Bench leader)
+- Worktrees give you true filesystem isolation, not just context isolation
+- You can delegate the *whole team* to a single Devin Cloud session via [§3](#3-devin-in-windsurf--cloud-delegation) when you log off
+
+**Pro move:** commit the `.windsurf/agents/` folder to your repo so the whole team inherits the same specialist roster. Then symlink it to `.claude/agents/` so Claude Code users on your team get the same personalities for free.
+
+### Racing Agents (Arena × Subagents)
+
+The "parallel agent racing" pattern (Twill.ai, AgentBox, ctx, April 2026) — running N agents on the same task and picking the winner — is just [Arena Mode](#12-arena-mode--side-by-side-models) with different subagent profiles instead of different models. Combine them:
+
+```
+# Same prompt, same model, four different personalities, one Space
+@architect /plan Add a rate limiter
+@implementer /plan Add a rate limiter
+@terse /plan Add a rate limiter
+@security /plan Add a rate limiter
+```
+
+Let them all produce plans, then hand the best one to the implementer. Costs 4× the plan tokens but you pick from four angles instead of one — invaluable for architecture work where getting the plan wrong costs days.
+
 ---
 
 ## 18. Real-World Configurations
@@ -1761,7 +1947,421 @@ And you get it at **SWE 1.6 Fast speed** (950 tok/s on Cerebras), which is alrea
 
 ---
 
-## 20. Troubleshooting
+## 20. Context Engineering & the Agentic Wiki
+
+This is the discipline everyone's talking about in April 2026. [Andrej Karpathy's "LLM Wiki" gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) (Apr 4) crystallized what power users already felt: **RAG is stateless and amnesiac. Every query re-discovers knowledge from scratch. The future is a persistent, compounding Agentic Wiki.** Three major blog posts and a dozen YouTube videos followed in the next week, including [Supermemory's context engineering guide](https://supermemory.ai/blog/what-is-context-engineering-complete-guide/) (Apr 9) and IBM's treatment on enterprise memory (Apr 7).
+
+You don't need a harness for this. You need to apply the four context-engineering moves inside Cascade.
+
+### The Four Moves
+
+| Move | What it means | Cascade surfaces |
+|---|---|---|
+| **Offload** | Push rarely-needed info out of the context window to disk/DB | Plan files (`~/.windsurf/plans/`), AGENTS.md, `.windsurf/skills/`, Memories |
+| **Retrieve** | Pull the right context back in at the right time | `@mention` (file/plan/skill), MCP tools (vector DB, graph DB), `@web`/`@docs` |
+| **Compress** | Summarize or evict stale turns so the window stays cheap and sharp | Prompt cache timer (2.0), `megaplan` → fresh session, Devin handoff |
+| **Isolate** | Prevent context bleed across different concerns | Worktrees, Spaces, [subagents](#17-custom-subagents) |
+
+If your Cascade session is slow or stupid, it's almost always because you're failing one of the four. Diagnose: *am I carrying dead context, or am I missing a piece I need?*
+
+### The Agentic Wiki Pattern (Cascade Edition)
+
+Karpathy's version: a `vault/` folder of markdown files that the agent *maintains* over time — reading new sources, extracting entities, updating topic pages, linking cross-references. Works beautifully in Cascade with zero new infrastructure:
+
+```
+<repo>/
+├── AGENTS.md                 # "Start every task by reading vault/INDEX.md"
+├── vault/
+│   ├── INDEX.md              # Map of contents — what lives where
+│   ├── decisions/            # ADR-NNN — architectural decisions
+│   ├── people/               # Who owns what
+│   ├── services/             # Per-service runbooks & invariants
+│   ├── incidents/            # Post-mortems, extracted lessons
+│   ├── glossary.md           # Terms of art
+│   └── moc/                  # Maps of Content — curated reading lists
+└── .windsurf/
+    ├── skills/
+    │   ├── wiki-update/SKILL.md     # Update the wiki after every session
+    │   └── wiki-query/SKILL.md      # Query the wiki before starting work
+    └── hooks.json                    # post_cascade_response → wiki-update
+```
+
+**`.windsurf/skills/wiki-update/SKILL.md`:**
+
+```yaml
+---
+name: wiki-update
+description: Maintain the project wiki in vault/. Run at the end of any session that produced a decision, fact, or change of state. Extracts entities, updates pages, adds cross-links, never deletes.
+---
+
+# Wiki Update Skill
+
+After a session that did any of the following, update the wiki:
+- Made an architectural decision → `vault/decisions/ADR-NNN.md`
+- Learned who owns a system → `vault/people/<name>.md` + link from `vault/services/<svc>.md`
+- Fixed an incident → `vault/incidents/<date>-<short>.md` with root cause + fix + invariant to add
+- Added a term of art → `vault/glossary.md`
+
+Process:
+1. Read `vault/INDEX.md` to understand the current shape of the wiki.
+2. For each new fact, **prefer updating an existing page** over creating a new one.
+3. Use `[[wikilinks]]` between entities. If you reference a page that doesn't exist, create a stub.
+4. Append to `vault/INDEX.md` if you created a new page.
+5. Never delete or rewrite existing content — append and mark stale sections with `> **Stale as of YYYY-MM-DD:** ...`.
+
+Output a one-line summary of what you updated.
+```
+
+Bind it to the [`post_cascade_response_with_transcript` hook](#8-hooks) so it runs automatically after every session. Over weeks, your repo accumulates exactly the kind of compounding knowledge layer Karpathy describes — without running a vector database or a bespoke harness.
+
+### Claude Code's Compaction Engine (And How to Do It in Cascade)
+
+In early April, Claude Code's [3-tier compaction strategy leaked from internal telemetry](https://stachu.dev/claude-code-best-practices/): **recent turns in full, mid-range turns as abstractive summaries, distant turns as bullet-point-only skeletons**. Cascade doesn't expose a knob for this, but you can get most of the benefit manually:
+
+- **Short tasks (<30 min):** let Cascade run the default context window. Trust the prompt cache.
+- **Medium tasks (30 min – 2h):** every ~10 turns, say `summarize what we've done in one paragraph and continue from that summary`. This is Cascade's abstractive layer.
+- **Long tasks (2h+):** do a [Plan Mode](#1-cascade-modes-code--plan--ask) writeup to `~/.windsurf/plans/`, close the session, open a fresh one, `@mention` the plan. This is the skeleton layer — you kept the decisions and dropped the turns.
+
+The prompt cache timer in the 2.0 context-window indicator tells you when you're about to pay full rate again. If it drops to zero mid-task, do the summary move *now*.
+
+### Anti-Patterns to Kill
+
+| Anti-pattern | Why it hurts | Fix |
+|---|---|---|
+| Re-explaining project context in every prompt | Wastes cache, drowns the real question | `AGENTS.md` + Rules, let Cascade load it once |
+| `@mention`-ing giant files "for context" | Burns 10k+ tokens on stuff Cascade doesn't need | `@mention` the directory, let it search |
+| Pasting terminal output without cleaning | Stack traces inflate context; most lines are noise | Use `cascade > log 2>&1 | tail -50` and paste that |
+| Running everything in one session for days | Context bloats, prompt cache invalidates | Plan → close → reopen with plan |
+| Using one model for everything | Reviewer and implementer want different things | [Subagents](#17-custom-subagents) with pinned models |
+
+---
+
+## 21. Spec-Driven Development with Cascade
+
+Spec-Driven Development (SDD) went mainstream in April 2026. [GitHub Spec Kit v0.5.0](https://github.com/github/spec-kit) shipped on April 11 with seven `/speckit.*` slash commands; AWS's Kiro, Tessl's Spec Studio, and IBM's watsonx Code Assistant all rolled out SDD features in the same two weeks; [the Cognition writeup on SWE 1.6](https://cognition.ai/blog/swe-1-6) explicitly trained the model to prefer spec-first workflows.
+
+The idea: **treat specifications as the primary artifact and code as its compilation target.** Cascade is unusually good at this because Plan Mode + AGENTS.md + Workflows already form an SDD toolchain.
+
+### The Spec Kit Flow
+
+```bash
+# One-time install (works in any repo)
+uvx --from git+https://github.com/github/spec-kit specify init --ai cursor
+# (Spec Kit has templates for Cursor, Claude Code, Copilot, Gemini CLI.
+# Use --ai cursor and point the output at Cascade — details below.)
+```
+
+The seven slash commands Spec Kit gives you:
+
+| Command | What it does |
+|---|---|
+| `/speckit.constitution` | Write the project's non-negotiable principles (security, testing, API shape) |
+| `/speckit.specify` | Turn a user request into a formal spec doc |
+| `/speckit.clarify` | Ask the clarifying questions the spec is missing |
+| `/speckit.plan` | Decompose the spec into implementable tasks |
+| `/speckit.tasks` | Emit the task list as checkboxes |
+| `/speckit.analyze` | Audit the spec + plan before implementation |
+| `/speckit.implement` | Hand the plan to the code agent |
+
+### Wiring Spec Kit Into Cascade
+
+Spec Kit emits prompt files (markdown) designed to be invoked as slash commands. Cascade's [Workflows](#10-workflows) system is the right host — one `.windsurf/workflows/speckit.<cmd>.md` file per command.
+
+```bash
+# From your repo root
+mkdir -p .windsurf/workflows
+git clone --depth 1 https://github.com/github/spec-kit /tmp/spec-kit
+for cmd in constitution specify clarify plan tasks analyze implement; do
+  cp /tmp/spec-kit/templates/commands/$cmd.md .windsurf/workflows/speckit-$cmd.md
+done
+```
+
+Then in Cascade: `/speckit-specify Add a rate limiter for /api/auth/*` → produces `specs/001-rate-limiter.md`.
+
+### The Native Cascade SDD Flow (No Spec Kit)
+
+If you'd rather not depend on Spec Kit, Cascade's built-in primitives get you 90% there:
+
+1. **Constitution** → root `AGENTS.md` with an "Invariants" section
+2. **Specify** → `/plan <request>` (Plan Mode asks clarifying questions)
+3. **Clarify** → `megaplan <request>` (aggressive form — asks *many* clarifying questions)
+4. **Plan** → the plan file written to `~/.windsurf/plans/<name>.md`
+5. **Tasks** → the plan already has checkboxed steps
+6. **Analyze** → `@reviewer check this plan before we implement`
+7. **Implement** → click **Implement** on the plan file (or hand to Devin)
+
+Here's a `AGENTS.md` "Invariants" block worth copy-pasting as a starting point:
+
+```markdown
+## Invariants (Constitution)
+
+These are never negotiable. If a request would violate them, ask first — don't silently proceed.
+
+1. **Security:** no API key or secret in logs, commits, or tests. PII never in logs.
+2. **Testing:** every new public function gets a test. Coverage must stay ≥ 80% on `src/`.
+3. **API shape:** every endpoint returns `{ ok: boolean, data?: T, error?: { code, message } }`.
+4. **Migrations:** schema changes are always a two-phase deploy (expand → migrate → contract).
+5. **Dependencies:** no new dependency with < 6 months of commit history or < 100 stars.
+6. **AI changes:** every Cascade-generated diff over 50 lines gets a `reviewer` subagent pass before commit.
+```
+
+### SDD + Subagents + Worktrees = The Killer Flow
+
+```
+Space: "Add rate limiter"
+├── Worktree A (@architect):   /speckit-specify + /speckit-clarify → spec.md
+├── Worktree B (@reviewer):    /speckit-analyze spec.md           → review notes
+├── Worktree C (@implementer): /speckit-implement spec.md         → code + tests
+└── Worktree D (@tester):      runs the suite + coverage          → report
+```
+
+All four live in one [Space](#2-agent-command-center--spaces). You orchestrate from the Kanban. Close the loop with the wiki-update hook from [§20](#20-context-engineering--the-agentic-wiki) — the decision, spec, and review become part of `vault/`.
+
+---
+
+## 22. Skills Ecosystem — `gh skill`, agentskills.io, and Viral Skills
+
+The agent-skills ecosystem is suddenly one of the most active parts of the AI-tools landscape. As of mid-April 2026:
+
+- **[agentskills.io](https://agentskills.io)** is the spec for `SKILL.md` — 30+ platforms (Claude Code, Cursor, Codex, Gemini CLI, Copilot, OpenClaw, Hermes, Windsurf) follow it.
+- **[`gh skill` CLI](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli)** — landed **April 16**. Install, update, publish, pin, verify provenance of any SKILL.md-formatted skill from GitHub directly into any supported agent, including Cascade.
+- **[mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill)** — #1 on GitHub Trending April 16, 22k stars, 1.8k forks. The canonical example of a "does one thing extremely well" skill.
+- **[jezweb/skills](https://github.com/jezweb/skills)** — a curated list of 300+ community skills that install with `gh skill install`.
+
+### Installing Skills with the New `gh skill` CLI
+
+```bash
+# One-time install of the CLI extension
+gh extension install github/gh-skill
+
+# Search for skills
+gh skill search research multi-source
+
+# Install into Cascade (target flag writes to .windsurf/skills/)
+gh skill install mvanhorn/last30days-skill --target windsurf
+
+# Pin a version (skills are content-addressed, so this is immutable)
+gh skill install mvanhorn/last30days-skill@v3.0.5 --target windsurf
+
+# Check for updates
+gh skill outdated --target windsurf
+
+# Publish your own
+gh skill publish .windsurf/skills/deep-recall
+```
+
+Target flags the CLI currently supports: `--target claude-code`, `--target cursor`, `--target codex`, `--target copilot`, `--target gemini-cli`, `--target windsurf`, `--target openclaw`, `--target hermes`. One skill repo, N targets.
+
+**Under the hood**, `--target windsurf` just copies the SKILL.md (and any bundled `resources/`, `scripts/`, etc.) into `.windsurf/skills/<name>/` and sets the right permissions — exactly what [§5 Skills System](#5-skills-system) describes, but with provenance + version pinning.
+
+### Installing `last30days` in Cascade (without the CLI)
+
+If you don't want the GitHub CLI dependency:
+
+```bash
+mkdir -p .windsurf/skills
+git clone --depth 1 https://github.com/mvanhorn/last30days-skill /tmp/l30d
+cp -r /tmp/l30d/skills/last30days .windsurf/skills/
+```
+
+Then in Cascade: `/last30days windsurf 2.0` — synthesizes a brief across Reddit, X, YouTube, HN, Polymarket, GitHub, Bluesky, Perplexity, and five others.
+
+**Why this matters in this guide:** `last30days` does *exactly* what the "What's Hot Right Now" block above does — but on demand, for any topic. Install it once and you have an always-current research tool without standing up your own MCP server. It's what took this guide from static to live.
+
+### Writing Skills Worth Publishing
+
+The viral skills all follow the same shape:
+
+1. **Single-purpose.** `last30days` researches across platforms. `pr-review` reviews PRs. Not "research and review and deploy."
+2. **Description is a trigger.** The `description:` YAML field is the only thing Cascade sees when deciding whether to invoke. Write it as a condition: "*Use when the user asks about...*"
+3. **Progressive disclosure.** The skill body is short; details live in `resources/` files the agent reads on demand.
+4. **Bundled scripts.** If there's deterministic logic (rate limit, dedup, format), write it in a script — don't make the LLM redo it.
+5. **Zero-config if possible.** Work immediately with sensible defaults; require secrets only if invoked for a gated source.
+6. **Cross-target.** Test on at least Claude Code + Cursor + Windsurf before publishing. A SKILL.md that assumes a specific slash-command runner won't travel.
+
+### The Skills Worth Installing Today
+
+| Skill | What it does | Why |
+|---|---|---|
+| [last30days](https://github.com/mvanhorn/last30days-skill) | Parallel multi-platform research + AI synthesis | Trending #1 for a reason |
+| [commit-surgeon](https://github.com/anthropics/claude-code-skills) | Rewrites git history, splits messy commits, interactive rebase driver | Saves you from `git rebase -i` hell |
+| [pr-surgeon](https://github.com/anthropics/claude-code-skills) | Turns a local branch into a clean PR (squash, rename, describe) | Use after any non-trivial Cascade session |
+| [test-backfill](https://github.com/anthropics/claude-code-skills) | Adds missing tests for uncovered lines, aware of your test framework | Pairs with the `tester` subagent |
+| [docs-writer](https://github.com/anthropics/claude-code-skills) | README / AGENTS.md / CHANGELOG keeper | Pairs with `post_cascade_response` hook |
+| [changelog-bot](https://github.com/jezweb/skills) | Keeps `CHANGELOG.md` in conventional-commits format | Release hygiene |
+| [secret-scrubber](https://github.com/jezweb/skills) | Scans diffs for secrets before commit | Complements the hook in [§8](#8-hooks) |
+
+### Publishing Your Own Skill
+
+```bash
+# Create a new skill scaffold
+gh skill new my-skill --target windsurf
+
+# Edits .windsurf/skills/my-skill/SKILL.md + scripts/ + resources/
+$EDITOR .windsurf/skills/my-skill/SKILL.md
+
+# Test locally — Cascade should see it immediately
+# Then publish to GitHub with provenance
+gh skill publish .windsurf/skills/my-skill
+# → publishes to github.com/<you>/my-skill-skill with verified build attestation
+```
+
+Anyone in any supported agent can now install yours with a single `gh skill install <you>/my-skill`. This is how `last30days` went from zero to 22k stars in three months — the distribution story is solved.
+
+---
+
+## 23. Observability & Evals for Cascade
+
+Agent observability went from "nice to have" to "listed in 67% of AI-engineer job postings" in Q1 2026. ([AgenticCareers](https://agenticcareers.co/blog/ai-agent-observability-stack-2026) tracks the numbers.) Cascade doesn't ship a first-party dashboard — but Cascade *hooks* fire on every file read, command, response, and rule application, so you can pipe into any of the major platforms in 20 lines of Python.
+
+### The Platforms
+
+| Tool | Best for | Pricing | Cascade fit |
+|---|---|---|---|
+| [**LangSmith**](https://smith.langchain.com) | Teams already on LangChain/LangGraph | Tiered SaaS | Good if your MCP servers use LangChain; otherwise overkill |
+| [**Langfuse**](https://langfuse.com) | OSS-friendly, self-hostable, vendor-agnostic | Free OSS + SaaS | **Best general-purpose choice for Cascade** — no framework lock-in |
+| [**Arize Phoenix**](https://phoenix.arize.com) | ML-ops teams, OpenInference/OTel native | Free OSS + Arize SaaS | Great if you already emit OTel |
+| [**Helicone**](https://helicone.ai) | Simple LLM proxy + logging | Cheap, fast setup | Fine for basic cost tracking, limited for agent traces |
+| [**Braintrust**](https://braintrust.dev) | Eval-first, regression testing | SaaS | **Best eval platform** — the one you pair with whatever you use for tracing |
+
+**Recommended pairing for most teams:** Langfuse for tracing + Braintrust for evals. Both have free tiers that cover individual power users.
+
+### Wiring Cascade into Langfuse with a Hook
+
+Add to `.windsurf/hooks.json`:
+
+```jsonc
+{
+  "hooks": {
+    "post_cascade_response_with_transcript": [
+      {
+        "command": "python3 .windsurf/hooks/langfuse_logger.py"
+      }
+    ]
+  }
+}
+```
+
+`.windsurf/hooks/langfuse_logger.py`:
+
+```python
+#!/usr/bin/env python3
+"""Pipe every Cascade response into Langfuse as a trace."""
+import json, os, sys
+from langfuse import Langfuse
+
+lf = Langfuse(
+    public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
+    secret_key=os.environ["LANGFUSE_SECRET_KEY"],
+    host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
+)
+
+ctx = json.load(sys.stdin)
+trace = lf.trace(
+    name="cascade-response",
+    user_id=ctx.get("user_id"),
+    session_id=ctx.get("session_id"),
+    metadata={
+        "model": ctx.get("model"),
+        "mode": ctx.get("mode"),             # code / plan / ask
+        "rules_applied": ctx.get("rules_applied", []),
+        "tool_calls": len(ctx.get("tool_calls", [])),
+        "workspace": ctx.get("workspace"),
+    },
+)
+trace.generation(
+    name="cascade",
+    model=ctx.get("model"),
+    input=ctx.get("prompt"),
+    output=ctx.get("response"),
+    usage={
+        "input": ctx.get("input_tokens"),
+        "output": ctx.get("output_tokens"),
+        "cache_read": ctx.get("cache_read_tokens"),
+    },
+)
+for call in ctx.get("tool_calls", []):
+    trace.span(
+        name=f"tool:{call['name']}",
+        input=call.get("args"),
+        output=call.get("result"),
+        metadata={"duration_ms": call.get("duration_ms")},
+    )
+lf.flush()
+```
+
+Set `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` in your shell profile and every Cascade turn streams into your Langfuse project. You get latency breakdowns, token-spend-per-rule, tool-call heatmaps, and — critically — a searchable trace every time something goes wrong.
+
+### Running Evals with Braintrust
+
+The workflow that's emerging in April 2026:
+
+1. Keep a `.windsurf/evals/` folder of **golden prompts** — real tasks you've completed before, with the ideal output captured
+2. Nightly (or on every `AGENTS.md` change), run each prompt through Cascade via the [Windsurf API](https://docs.windsurf.com/api) or a headless Cascade session
+3. Pipe the outputs into Braintrust; grade with an LLM-as-judge + simple heuristics (did it touch the right files? pass tests? obey the invariants?)
+4. Watch the score when you change a rule, add an MCP, pin a new model
+
+This is how you tell whether editing `AGENTS.md` helped or hurt. It's also how Cognition validates SWE 1.6 internally — the [blog post](https://cognition.ai/blog/swe-1-6) walks through their eval-first methodology.
+
+### The `rules_applied` Telemetry Gold Mine
+
+Cascade's [`rules_applied`](#9-memories--rules) field in the hook context tells you **which of your rules actually fired for each response**. Pipe it into Langfuse as metadata (shown above) and you get:
+
+- Which rules are load-bearing (fire often, correlate with good outcomes)
+- Which rules are dead weight (never fire — delete them)
+- Which rules conflict (co-occur in failed turns)
+
+This is the single highest-ROI piece of instrumentation in Cascade and nobody is using it. Turn it on.
+
+---
+
+## 24. Gotchas & Known Issues (April 2026)
+
+Current quirks worth knowing before you hit them. All of these are fresh as of mid-April; expect them to be patched in subsequent 2.0.x releases.
+
+### Nested Git Repos Multiply Rule Loads ([#305](https://github.com/Exafunction/codeium/issues/305))
+
+If your workspace root contains multiple `.git/` directories (monorepos, submodules, nested clones), Cascade loads `.windsurfrules` / `AGENTS.md` 2×–9× per response. Every load burns the full token count of the file.
+
+**Fix until patched:** Either flatten the layout (open the specific repo folder, not the parent) or set a workspace-level override to pin the rules file path. Monitor the issue; the fix is in the patch queue.
+
+### SSE MCP Servers Silently Dying (April–June 2026)
+
+Every remote MCP server still on the legacy SSE transport will stop working on its vendor's cutoff date (Keboola: Apr 1, Atlassian: Jun 30, others tbd). Cascade won't warn you — the tool just disappears from the agent's available list.
+
+**Fix:** Audit `mcp_config.json` for `"transport": "sse"` on any remote URL. Switch to `"streamable-http"` or wait for the vendor's migration. See [§6 MCP](#sse-is-deprecated--migrate-to-streamable-http-april-2026).
+
+### MCP TypeScript SDK 1.25–1.27 Keepalive Bug
+
+If you wrote your own Streamable-HTTP MCP server on the TS SDK between 1.25 and 1.27, long-running Cascade sessions will lose connections on TCP keepalive. Pin to 1.24.x or keep an SSE GET stream open during idle. Fix is in 1.28 beta.
+
+### Adaptive Router Promo Pricing Ends Soon
+
+The current promo rate ($0.50/M input, $2/M output, $0.10/M cache-read) is a launch promo — Windsurf has not committed to permanence. If you're building cost projections, assume the rate could normalize to the average of the underlying models (roughly 2× the promo) after the Adaptive public-beta window.
+
+### SWE 1.6 Fast "Free for 3 Months" Expires in July 2026
+
+The free-tier promo for SWE 1.6 started April 7, 2026 and is explicitly a 3-month window. If your production workflow is built around its cost structure, pencil in a July 7, 2026 re-evaluation. Fireworks hosting (200 tok/s) will likely remain free on the Free plan; the 950 tok/s Cerebras variant will likely move to paid quota.
+
+### Rules File 6k-Token Soft Limit
+
+Cascade has a soft cap around 6k tokens on the combined rules context per session. Past it, the tail gets silently truncated. If your `AGENTS.md` + Memories + active Rules push over this, pull rarely-used sections into `vault/` or skills and `@mention` them on demand.
+
+### Windsurf Browser CORS Quirks
+
+The 2.0 Windsurf Browser runs inside the editor, which means some sites see it as a non-standard user agent and block or rate-limit. If Cascade reports "couldn't read page" consistently for a site that works in Chrome, fall back to Chrome DevTools MCP ([§6](#6-mcp-server-integration)) or `@web` URL paste.
+
+### Agent Command Center Kanban Can Drift on Restart
+
+The Kanban position of archived agent sessions sometimes reorders after a Windsurf restart. Pending sessions are preserved; completed/archived cards may need a manual drag back. Low-impact; patch is noted as "in review" by Windsurf staff.
+
+### If a Gotcha Is Costing You Hours, File It
+
+The [Exafunction/codeium issue tracker](https://github.com/Exafunction/codeium/issues) is the canonical place. Windsurf staff actively triage; issues with a clear repro and impact numbers tend to land fixes within a 2.0.x cycle.
+
+---
+
+## 25. Troubleshooting
 
 ### "Connecting to Language Server" Stuck
 
@@ -1876,6 +2476,8 @@ This works because Cascade can introspect on what went wrong and save the fix. A
 
 ## Resources
 
+### Windsurf Primary Sources
+
 - [Windsurf Documentation](https://docs.windsurf.com)
 - [Windsurf Changelog](https://windsurf.com/changelog)
 - [Windsurf Blog — Windsurf 2.0 announcement](https://windsurf.com/blog/windsurf-2-0)
@@ -1883,14 +2485,56 @@ This works because Cascade can introspect on what went wrong and save the fix. A
 - [Agent Command Center docs](https://docs.windsurf.com/windsurf/agent-command-center)
 - [Spaces docs](https://docs.windsurf.com/windsurf/spaces)
 - [Devin in Windsurf docs](https://docs.windsurf.com/windsurf/devin)
+- [Cascade Hooks docs](https://docs.windsurf.com/windsurf/cascade/hooks)
+- [Arena Leaderboard](https://windsurf.com/leaderboard)
+
+### MCP & Protocol
+
 - [MCP Specification](https://spec.modelcontextprotocol.io)
 - [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
 - [MCP Server Directory](https://github.com/modelcontextprotocol/servers)
-- [Agent Skills Spec](https://agentskills.io)
-- [Arena Leaderboard](https://windsurf.com/leaderboard)
+- [GitHub MCP Server](https://github.com/github/github-mcp-server)
+- [Azure MCP Server](https://github.com/Azure/azure-mcp)
+- [fastmcp (Python)](https://github.com/jlowin/fastmcp)
+- [SSE → Streamable HTTP migration guide](https://www.channel.tel/blog/mcp-sse-to-streamable-http-migration)
+
+### Skills Ecosystem
+
+- [Agent Skills Spec (agentskills.io)](https://agentskills.io)
+- [`gh skill` CLI announcement](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli)
+- [last30days-skill](https://github.com/mvanhorn/last30days-skill) — GitHub Trending #1, April 16
+- [jezweb/skills](https://github.com/jezweb/skills) — 300+ curated community skills
+- [Anthropic's claude-code-skills](https://github.com/anthropics/claude-code-skills)
+
+### Spec-Driven Development
+
+- [GitHub Spec Kit](https://github.com/github/spec-kit)
+- [AWS Kiro](https://kiro.dev) — AWS's SDD IDE
+- [Tessl Spec Studio](https://tessl.io)
+
+### Context Engineering & Memory
+
+- [Karpathy's LLM Wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+- [Supermemory: Context Engineering Complete Guide (Apr 2026)](https://supermemory.ai/blog/what-is-context-engineering-complete-guide/)
+- [Epsilla: Why Karpathy is Right — RAG is Dead](https://www.epsilla.com/blogs/karpathy-agentic-wiki-beyond-rag-enterprise-memory)
+
+### Observability & Evals
+
+- [Langfuse](https://langfuse.com) — OSS + SaaS agent observability
+- [LangSmith](https://smith.langchain.com) — LangChain-native
+- [Arize Phoenix](https://phoenix.arize.com) — OpenInference/OTel
+- [Helicone](https://helicone.ai) — lightweight LLM proxy + logging
+- [Braintrust](https://braintrust.dev) — eval-first
+- [AI Agent Observability Stack comparison (AgenticCareers)](https://agenticcareers.co/blog/ai-agent-observability-stack-2026)
+
+### Competitor Harness Guides
+
 - [OpenClaw Optimization Guide](https://github.com/OnlyTerp/openclaw-optimization-guide) — companion guide for the OpenClaw harness
 - [Hermes Optimization Guide](https://github.com/OnlyTerp/hermes-optimization-guide) — companion guide for the Hermes harness
 
 ---
 
-*Last updated: April 2026 · Built by [Terp AI Labs](https://x.com/OnlyTerp) · Ship fast, iterate constantly.*
+*Last updated: April 17, 2026 · Built by [Terp AI Labs](https://x.com/OnlyTerp) · Ship fast, iterate constantly.*
+
+*Covers: Windsurf 2.0.50 · SWE 1.6 / SWE 1.6 Fast · Agent Command Center · Spaces · Devin in Windsurf · `gh skill` CLI · Spec Kit v0.5.0 · MCP Streamable HTTP · last30days-skill · Claude Code Subagents pattern · Context Engineering · and every other thing that went viral in the first 17 days of April 2026.*
