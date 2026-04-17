@@ -18,6 +18,9 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
 │   ├── incidents/
 │   ├── people/
 │   └── glossary.md
+├── plans/                            # File-based plans (planning-with-files skill)
+├── templates/
+│   └── PRD.template.md               # 9-section drop-in PRD
 └── .windsurf/
     ├── agents/                       # 8 personality profiles
     │   ├── architect/AGENT.md        # Plan Mode, clarifying questions
@@ -53,13 +56,24 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── reflection-loop.md        # generate → evaluate → revise
     │   └── visual-iteration.md       # Screenshot → describe → fix (Chrome DevTools MCP)
     └── mcp_config.json               # Curated server list (all Streamable HTTP)
-
-../plans/                              # File-based plans (planning-with-files skill)
-../templates/
-    └── PRD.template.md               # 9-section drop-in PRD
 ```
 
 Every piece is documented in [the main guide](../README.md) — this is just the working reference implementation.
+
+---
+
+## Skills
+
+| Skill | Trigger | What It Does |
+|---|---|---|
+| [`wiki-update`](.windsurf/skills/wiki-update/SKILL.md) | End of session with decisions, new facts, or incidents | Appends/updates `vault/` pages so the next session inherits context |
+| [`wiki-query`](.windsurf/skills/wiki-query/SKILL.md) | Start of any non-trivial task | Reads `vault/INDEX.md` and relevant pages before planning |
+| [`pr-ready`](.windsurf/skills/pr-ready/SKILL.md) | About to open a PR | Cleans commits, writes description, verifies CI-equivalent checks locally |
+| [`test-backfill`](.windsurf/skills/test-backfill/SKILL.md) | Coverage below target | Generates tests to hit the coverage target without weakening assertions |
+| [`secret-scrubber`](.windsurf/skills/secret-scrubber/SKILL.md) | About to commit or push | Blocks diffs containing API keys, tokens, or PII |
+| [`planning-with-files`](.windsurf/skills/planning-with-files/SKILL.md) | Non-trivial task (>20 LOC or >1 file), `@architect` invoked, or "plan"/"PRD"/"spec" mentioned | Maintains a persistent markdown plan file in `plans/` that survives `/compact` and session restarts |
+| [`ast-grep`](.windsurf/skills/ast-grep/SKILL.md) | Structural refactor, AST-aware search, or "rename every call site of X" | Uses [ast-grep](https://ast-grep.github.io) for accurate structural matches instead of regex |
+| [`compact-hygiene`](.windsurf/skills/compact-hygiene/SKILL.md) | Context utilization passes ~50% or long running session | Runs `/compact` proactively with preservation instructions so critical facts survive compression |
 
 ---
 
