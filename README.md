@@ -256,7 +256,7 @@ Cascade keeps what matters, drops what doesn't. Your session stays sharp through
 
 **Why it's a wow:** Ticket → PR with zero IDE interaction. Your team sees "Cascade" in the assignee list like any other engineer, with an Agent Session panel showing its work.
 
-**Recipe** (30 lines, [see §19.12](#1912-linear-agent-api-cascade-as-an-assignable-teammate)):
+**Recipe** (30 lines, [see §19.12](#1912-linear-agent-api--cascade-as-an-assignable-teammate)):
 
 ```typescript
 // webhooks/linear.ts
