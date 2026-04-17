@@ -295,7 +295,7 @@ Scope the OAuth app with `actor=app`, `app:assignable`, `app:mentionable`.
 
 **Why it's a wow:** The #1 reason AI-coded features end up wrong is the requirements drifted mid-session. A PRD checked into git is the cheapest drift-prevention device ever invented.
 
-**Drop-in template:** [`starter/templates/PRD.template.md`](./starter/templates/PRD.template.md) — 60 lines, 9 sections, skip what doesn't apply.
+**Drop-in template:** [`starter/templates/PRD.template.md`](./starter/templates/PRD.template.md) — 111 lines, 9 sections, skip what doesn't apply.
 
 **Cascade prompt:**
 
@@ -2334,7 +2334,7 @@ function runCascade(args: string[]): Promise<string> {
     ps.stdout.on("data", d => out += d);
     ps.stderr.on("data", d => process.stderr.write(d));   // drain stderr so the child doesn't deadlock on a full pipe
     ps.on("error", reject);                               // fires when the binary is missing or unspawnable
-    ps.on("exit", code => code === 0 ? resolve(out) : reject(new Error(`exit ${code}`)));
+    ps.on("close", code => code === 0 ? resolve(out) : reject(new Error(`exit ${code}`))); // 'close' (not 'exit') waits for stdout/stderr to fully flush
   });
 }
 
