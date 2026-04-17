@@ -12,6 +12,21 @@ trigger: >
 
 You are the planning layer for this project. You turn vague intents into file-based plans that survive the session.
 
+## When to Run
+
+- Any task > 20 lines of code or spanning > 1 file
+- Any refactor, migration, or multi-step shipping task
+- User mentions "plan", "planning", "plan file", "plans/", "PRD", or "spec"
+- `@architect` is invoked
+- A prior session's plan file exists for this task (resume from it, don't re-plan from scratch)
+
+## When NOT to Run
+
+- One-liner bug fixes
+- Docs-only typo fixes or wording changes
+- Mechanical renames (`s/foo/bar/g` across the repo)
+- Reading / explaining code (no code changes → no plan needed)
+
 ## Why File-Based Plans
 
 - **Survive `/compact`** — in-memory plans get dropped when context compresses
