@@ -32,7 +32,7 @@ vault/
 └── glossary.md              # Project-specific vocabulary (one file, not a directory)
 ```
 
-Every file is plain markdown, 20–150 lines. One topic per file. Title-case slug.
+Every file is plain markdown, short enough to skim — split any page that passes ~300 lines (matches the convention in [`starter/vault/INDEX.md`](./starter/vault/INDEX.md)). One topic per file. Title-case slug.
 
 The `wiki-update` skill in the starter kit writes to these exact paths — if you diverge (adding `runbooks/`, `gotchas/`, `patterns/`, etc.), update [`starter/.windsurf/skills/wiki-update/SKILL.md`](./starter/.windsurf/skills/wiki-update/SKILL.md) and `vault/INDEX.md` to match so agents don't write to directories that don't exist.
 
@@ -69,7 +69,7 @@ When the session produced a decision, solved a non-obvious problem, or establish
    - Cross-cutting topic hubs → `vault/moc/<topic>.md` (a "Map of Content" that links related pages)
    - Glossary entries → append to `vault/glossary.md`
 2. Update `vault/INDEX.md` to link the new page.
-3. One page per topic. If a page grows > 150 lines, split it.
+3. One page per topic. If a page grows > 300 lines, split it (same threshold as `vault/INDEX.md`).
 
 ### Writing Style
 

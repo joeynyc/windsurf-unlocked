@@ -92,7 +92,7 @@ bash /tmp/wu/starter/install.sh
 ```
 
 The installer:
-1. Copies `.windsurf/` and `vault/` into the current directory
+1. Copies `.windsurf/`, `vault/`, `plans/`, and `templates/` into the current directory (existing directories are preserved — never overwritten)
 2. Copies `AGENTS.md` (only if one doesn't already exist — won't overwrite)
 3. Prints the 3 things you need to customize before first use
 4. Prints the Cascade commands to verify everything loaded
