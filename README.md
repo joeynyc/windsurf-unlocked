@@ -264,7 +264,7 @@ import { LinearClient } from "@linear/sdk";
 
 app.post("/webhooks/linear", async (req, res) => {
   const { action, data } = req.body;
-  if (action === "assigned" && data.assignee.id === process.env.CASCADE_USER_ID) {
+  if (action === "assigned" && data.assignee?.id === process.env.CASCADE_USER_ID) {
     const issue = await linear.issue(data.id);
     const plan = await cascade.plan(issue.description, { mode: "plan" });
     await issue.createComment({ body: `## Plan\n${plan}` });

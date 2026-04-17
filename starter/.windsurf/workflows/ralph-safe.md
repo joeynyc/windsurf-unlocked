@@ -90,7 +90,8 @@ $FAILURE
 Fix the CODE (never weaken tests unless they are clearly wrong — if they are, STOP and ask).
 Do not try to re-run the check yourself — I'll run it.
 When you're done, reply with a one-line summary of what you changed." \
-    > "$LOGDIR/cascade-$i.log"
+    > "$LOGDIR/cascade-$i.log" \
+    || echo "  cascade returned non-zero on iter $i — continuing to next iteration"
 done
 
 echo "Exceeded $MAX_ITERS iterations without going green."
