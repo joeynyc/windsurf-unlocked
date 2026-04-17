@@ -35,12 +35,22 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"]
     },
-    "puppeteer": {
-      "$doc": "Browser automation — pair with the Windsurf Browser for repeatable flows",
+    "chrome-devtools": {
+      "$doc": "Google's official chrome-devtools-mcp (35k⭐). Gives Cascade screenshots, console, DOM, perf traces. Docs: https://github.com/ChromeDevTools/chrome-devtools-mcp",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "playwright": {
+      "$doc": "Microsoft Playwright MCP — scripted browser driving. Pair with chrome-devtools for drive+debug. Docs: https://playwright.dev/docs/getting-started-mcp",
+      "command": "npx",
+      "args": ["-y", "@microsoft/mcp-playwright"]
     },
     "$disabled_examples": {
+      "puppeteer": {
+        "$doc": "Puppeteer MCP — alternative to Playwright. Enable only if you prefer Puppeteer; otherwise the chrome-devtools + playwright pair covers the same surface without the tool-ceiling hit.",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      },
       "azure": {
         "$doc": "Azure MCP Server 2.0 GA — 276 tools across 57 services. Uncomment and configure.",
         "transport": "streamable-http",
@@ -53,10 +63,11 @@
         "url": "${KEBOOLA_MCP_URL}",
         "headers": { "Authorization": "Bearer ${KEBOOLA_TOKEN}" }
       },
-      "playwright": {
-        "$doc": "Playwright MCP — E2E browser tests",
-        "command": "npx",
-        "args": ["-y", "@microsoft/mcp-playwright"]
+      "linear": {
+        "$doc": "Linear MCP (official) — Cascade as an assignable teammate. Docs: https://linear.app/docs/mcp",
+        "transport": "streamable-http",
+        "url": "https://mcp.linear.app/mcp",
+        "headers": { "Authorization": "Bearer ${LINEAR_MCP_TOKEN}" }
       },
       "postgres": {
         "$doc": "Read-only Postgres — safe to give Cascade",

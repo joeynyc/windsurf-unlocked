@@ -18,6 +18,9 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
 │   ├── incidents/
 │   ├── people/
 │   └── glossary.md
+├── plans/                            # File-based plans (planning-with-files skill)
+├── templates/
+│   └── PRD.template.md               # 9-section drop-in PRD
 └── .windsurf/
     ├── agents/                       # 8 personality profiles
     │   ├── architect/AGENT.md        # Plan Mode, clarifying questions
@@ -33,7 +36,10 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── wiki-query/               # Read vault/ before starting work
     │   ├── pr-ready/                 # Turn branch into clean PR
     │   ├── test-backfill/            # Fill gaps to hit coverage target
-    │   └── secret-scrubber/          # Block diffs with leaked secrets
+    │   ├── secret-scrubber/          # Block diffs with leaked secrets
+    │   ├── planning-with-files/      # Manus-style persistent plan files
+    │   ├── ast-grep/                 # Structural (AST-aware) search + refactor
+    │   └── compact-hygiene/          # Proactive /compact with preservation
     ├── hooks/                        # Shell + Python hook scripts
     │   ├── secret_scan.py            # pre_tool_use on file writes
     │   ├── langfuse_logger.py        # post_cascade_response telemetry
@@ -44,11 +50,30 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── plan-then-implement.md
     │   ├── speckit-specify.md
     │   ├── speckit-plan.md
-    │   └── megaplan.md
+    │   ├── megaplan.md
+    │   ├── ralph-safe.md             # Persistent loop with killswitch + cost cap
+    │   ├── prd-driven.md             # Spec-first, anti-drift feature workflow
+    │   ├── reflection-loop.md        # generate → evaluate → revise
+    │   └── visual-iteration.md       # Screenshot → describe → fix (Chrome DevTools MCP)
     └── mcp_config.json               # Curated server list (all Streamable HTTP)
 ```
 
 Every piece is documented in [the main guide](../README.md) — this is just the working reference implementation.
+
+---
+
+## Skills
+
+| Skill | Trigger | What It Does |
+|---|---|---|
+| [`wiki-update`](.windsurf/skills/wiki-update/SKILL.md) | End of session with decisions, new facts, or incidents | Appends/updates `vault/` pages so the next session inherits context |
+| [`wiki-query`](.windsurf/skills/wiki-query/SKILL.md) | Start of any non-trivial task | Reads `vault/INDEX.md` and relevant pages before planning |
+| [`pr-ready`](.windsurf/skills/pr-ready/SKILL.md) | About to open a PR | Cleans commits, writes description, verifies CI-equivalent checks locally |
+| [`test-backfill`](.windsurf/skills/test-backfill/SKILL.md) | Coverage below target | Generates tests to hit the coverage target without weakening assertions |
+| [`secret-scrubber`](.windsurf/skills/secret-scrubber/SKILL.md) | About to commit or push | Blocks diffs containing API keys, tokens, or PII |
+| [`planning-with-files`](.windsurf/skills/planning-with-files/SKILL.md) | Non-trivial task (>20 LOC or >1 file), `@architect` invoked, or "plan"/"PRD"/"spec" mentioned | Maintains a persistent markdown plan file in `plans/` that survives `/compact` and session restarts |
+| [`ast-grep`](.windsurf/skills/ast-grep/SKILL.md) | Structural refactor, AST-aware search, or "rename every call site of X" | Uses [ast-grep](https://ast-grep.github.io) for accurate structural matches instead of regex |
+| [`compact-hygiene`](.windsurf/skills/compact-hygiene/SKILL.md) | Context utilization passes ~50% or long running session | Runs `/compact` proactively with preservation instructions so critical facts survive compression |
 
 ---
 
@@ -67,7 +92,7 @@ bash /tmp/wu/starter/install.sh
 ```
 
 The installer:
-1. Copies `.windsurf/` and `vault/` into the current directory
+1. Copies `.windsurf/`, `vault/`, `plans/`, and `templates/` into the current directory (existing directories are preserved — never overwritten)
 2. Copies `AGENTS.md` (only if one doesn't already exist — won't overwrite)
 3. Prints the 3 things you need to customize before first use
 4. Prints the Cascade commands to verify everything loaded
@@ -120,7 +145,7 @@ Everything else works as-is.
 curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/starter/install.sh | bash -s -- --update
 ```
 
-`--update` refreshes the skills/hooks/workflows but skips `AGENTS.md`, `mcp_config.json`, and `vault/`.
+`--update` refreshes the skills/hooks/workflows but skips `AGENTS.md`, `mcp_config.json`, and `vault/`. It also ensures `plans/` and `templates/` exist (creates them if missing, never overwrites existing content) so newly-pulled skills that reference those directories work out of the box.
 
 ---
 
