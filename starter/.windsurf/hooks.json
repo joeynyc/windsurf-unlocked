@@ -1,0 +1,58 @@
+{
+  "$comment": [
+    "Cascade hooks configuration for windsurf-unlocked starter kit.",
+    "All hooks ship DISABLED by default — flip 'enabled': true on the ones you want.",
+    "Hook docs: https://docs.windsurf.com/windsurf/cascade/hooks",
+    "Guide: https://github.com/OnlyTerp/windsurf-unlocked#8-hooks"
+  ],
+  "hooks": {
+    "pre_tool_use": [
+      {
+        "name": "secret-scan-on-write",
+        "description": "Scan file-write tool calls for leaked secrets. Blocks the write on CRITICAL findings.",
+        "enabled": false,
+        "matchers": ["write_file", "edit_file"],
+        "command": "python3 .windsurf/hooks/secret_scan.py --mode=tool-input"
+      }
+    ],
+    "post_tool_use": [
+      {
+        "name": "auto-format-on-write",
+        "description": "Run the project formatter on any file Cascade wrote or edited.",
+        "enabled": false,
+        "matchers": ["write_file", "edit_file"],
+        "command": "bash .windsurf/hooks/auto_format.sh"
+      }
+    ],
+    "post_cascade_response_with_transcript": [
+      {
+        "name": "langfuse-logger",
+        "description": "Pipe every Cascade response into Langfuse for tracing and eval. Requires LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY env vars.",
+        "enabled": false,
+        "command": "python3 .windsurf/hooks/langfuse_logger.py"
+      },
+      {
+        "name": "wiki-updater",
+        "description": "After any session that made a decision, fact, or state change, auto-invoke the wiki-update skill to keep vault/ current.",
+        "enabled": false,
+        "command": "python3 .windsurf/hooks/wiki_update.py"
+      }
+    ],
+    "post_setup_worktree": [
+      {
+        "name": "seed-worktree",
+        "description": "When Cascade creates a new worktree, copy .env and install dependencies so the worktree is immediately runnable.",
+        "enabled": false,
+        "command": "bash .windsurf/hooks/post_setup_worktree.sh"
+      }
+    ],
+    "pre_commit": [
+      {
+        "name": "secret-scan-full",
+        "description": "Belt-and-suspenders: scan the full staged diff for secrets before any commit from Cascade.",
+        "enabled": false,
+        "command": "python3 .windsurf/hooks/secret_scan.py --mode=staged-diff"
+      }
+    ]
+  }
+}

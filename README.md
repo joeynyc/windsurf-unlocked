@@ -6,6 +6,56 @@
 
 *By Terp — [Terp AI Labs](https://x.com/OnlyTerp)*
 
+<p>
+  <a href="https://github.com/OnlyTerp/windsurf-unlocked/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/OnlyTerp/windsurf-unlocked?style=social"></a>
+  <a href="https://github.com/OnlyTerp/windsurf-unlocked/network/members"><img alt="Forks" src="https://img.shields.io/github/forks/OnlyTerp/windsurf-unlocked?style=social"></a>
+  <a href="https://github.com/OnlyTerp/windsurf-unlocked/blob/main/LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt="Windsurf 2.0.50" src="https://img.shields.io/badge/Windsurf-2.0.50-0ea5e9">
+  <img alt="SWE 1.6 Fast" src="https://img.shields.io/badge/SWE%201.6%20Fast-950%20tok%2Fs-22c55e">
+  <img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen">
+</p>
+
+**📖 [Main guide](#what-this-guide-covers) · 🚀 [Starter kit](./starter/README.md) · 💬 [Prompts](./PROMPTS.md) · 📊 [Benchmarks](./BENCHMARKS.md) · 🤝 [Contribute](./CONTRIBUTING.md)**
+
+---
+
+## 60-Second Quickstart
+
+If you want to install the full power-user setup into one of your repos right now:
+
+```bash
+# In the root of the repo you want to upgrade
+curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/starter/install.sh | bash
+```
+
+That drops in:
+
+- An [**8-role subagent team**](./starter/.windsurf/agents) (architect / implementer / reviewer / tester / security / docs / perf / shipper) — pattern popularized by Claude Code, covered in [§17](#17-custom-subagents)
+- Pre-wired [**hooks**](./starter/.windsurf/hooks) (secret scanner, Langfuse observability, auto-formatter, worktree seeder) — all **disabled by default**, flip on what you want
+- [**Curated skills**](./starter/.windsurf/skills) (wiki-update, wiki-query, pr-ready, test-backfill, secret-scrubber)
+- A [**`vault/` scaffold**](./starter/vault) for the agentic-wiki pattern from [§20](#20-context-engineering--the-agentic-wiki)
+- An [**`AGENTS.md` template**](./starter/AGENTS.md) constitution to fill in for your project
+- A [**curated MCP config**](./starter/.windsurf/mcp_config.json) using Streamable HTTP (not deprecated SSE)
+- [**Spec-Driven workflows**](./starter/.windsurf/workflows) (`plan-then-implement`, `speckit-specify`, `speckit-plan`, `megaplan`)
+
+First 5 minutes after install: edit `AGENTS.md`, flip on the hooks you want, verify with `@reviewer Read AGENTS.md and list invariants that need filling in`. Done.
+
+Details and customization: [**starter/README.md**](./starter/README.md).
+
+---
+
+## Companion Files
+
+- [**`starter/`**](./starter/) — the actual working `.windsurf/` setup. Clone it, install it, fork it.
+- [**`PROMPTS.md`**](./PROMPTS.md) — 60+ battle-tested Cascade prompts organized by phase (plan / implement / refactor / debug / test / review / security / perf / docs / ship / teach / meta / edge cases).
+- [**`BENCHMARKS.md`**](./BENCHMARKS.md) — open-source benchmark methodology + published vendor numbers + community-contributed real-world data. PR your numbers.
+- [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
+
+If you only have 10 minutes, read [§17 Custom Subagents](#17-custom-subagents) and [§20 Context Engineering](#20-context-engineering--the-agentic-wiki), then install the starter kit. That's the 80% of the value.
+
+**⭐ If this saves you even one hour, star the repo — it makes the work worth doing.**
+
+
 ---
 
 ## What This Guide Covers
@@ -2471,6 +2521,81 @@ This works because Cascade can introspect on what went wrong and save the fix. A
 | Model selector | Prompt hints (`/fast`, `/deep`) + picker + pinning | Contextual | Auto-detected |
 | Adaptive router | Model picker | Per-turn | User |
 | Subagent profiles | `.windsurf/agents/*/AGENT.md` | `@mention` | Workspace only |
+
+---
+
+## Awesome-Windsurf — Curated Ecosystem Index
+
+> Community-maintained list of the best things you can plug into Cascade. PRs that add a single high-quality resource are very welcome (bar is *top-tier* — not "a thing that exists"). See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+### 🧩 MCP Servers (production-ready, Streamable HTTP or stdio)
+
+| Server | What it does | Notes |
+|---|---|---|
+| [github/github-mcp-server](https://github.com/github/github-mcp-server) | Full GitHub API: PRs, issues, code, actions | v0.33 added OAuth auto-trigger |
+| [Azure MCP Server 2.0](https://github.com/Azure/azure-mcp) | 276 tools across 57 Azure services | GA April 2026 |
+| [modelcontextprotocol/servers — filesystem](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) | Scoped filesystem access | Reference implementation |
+| [modelcontextprotocol/servers — postgres](https://github.com/modelcontextprotocol/servers/tree/main/src/postgres) | Read-only Postgres | Safe to hand to Cascade |
+| [modelcontextprotocol/servers — memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | Persistent key-value store | Official memory |
+| [Keboola MCP](https://keboola.com/blog/mcp-streamable-http) | Data pipelines, reference Streamable HTTP implementation | Apr 1 cutover set industry precedent |
+| [Chrome DevTools MCP](https://developer.chrome.com/blog/mcp-chrome-devtools) | Drive DevTools from Cascade | Useful for perf debugging |
+| [microsoft/mcp-playwright](https://github.com/microsoft/mcp-playwright) | Browser automation for E2E | Works with Windsurf Browser |
+| [jlowin/fastmcp](https://github.com/jlowin/fastmcp) | Build your own MCP server in Python fast | Best DX for custom servers |
+| [Slack MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/slack) | Read cross-team context | Requires bot token |
+| [Linear MCP](https://linear.app/docs/mcp) | Issue tracker from Cascade | Official |
+
+### 🧠 Skills (install via `gh skill install`)
+
+| Skill | What it does | Source |
+|---|---|---|
+| [last30days-skill](https://github.com/mvanhorn/last30days-skill) | Parallel search of Reddit / X / YouTube / HN / GitHub, AI-synthesized brief | GitHub Trending #1, 22k⭐ |
+| [anthropics/claude-code-skills](https://github.com/anthropics/claude-code-skills) | Anthropic's canonical skill collection | Official |
+| [jezweb/skills](https://github.com/jezweb/skills) | 300+ curated community skills | Community |
+| [windsurf-unlocked starter skills](./starter/.windsurf/skills) | wiki-update, wiki-query, pr-ready, test-backfill, secret-scrubber | This repo |
+
+### 🚀 Starter Templates & Configs
+
+| Template | What you get | Fit |
+|---|---|---|
+| [**windsurf-unlocked/starter**](./starter) | 8 subagents, hooks, skills, vault, Spec Kit workflows, MCP config | General-purpose |
+| [github/spec-kit](https://github.com/github/spec-kit) | `/speckit.*` workflows for SDD | Spec-Driven teams |
+| [agentskills.io](https://agentskills.io) | SKILL.md specification + examples | Skill authors |
+| [karpathy's LLM Wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | The `vault/`-style agentic-wiki pattern | Memory-hungry teams |
+
+### 📊 Observability & Evals
+
+| Tool | Model | Notes |
+|---|---|---|
+| [Langfuse](https://langfuse.com) | OSS + SaaS | Best for self-hosters |
+| [LangSmith](https://smith.langchain.com) | SaaS | Best if you're already in LangChain |
+| [Arize Phoenix](https://phoenix.arize.com) | OSS + SaaS | OpenInference / OTel-native |
+| [Helicone](https://helicone.ai) | SaaS (OSS proxy) | Lightweight logging + caching |
+| [Braintrust](https://braintrust.dev) | SaaS | Eval-first workflow |
+
+Covered in depth in [§23](#23-observability--evals-for-cascade) with a working Langfuse hook in the starter kit.
+
+### 🎥 Talks, Videos, and Posts Worth Watching
+
+| Resource | Why |
+|---|---|
+| [Cognition — SWE 1.6 launch](https://cognition.ai/blog/swe-1-6) | The model + the Cerebras deal |
+| [Anthropic — Subagents docs](https://docs.anthropic.com/en/docs/claude-code/sub-agents) | Canonical description of the pattern |
+| [Supermemory — What is Context Engineering](https://supermemory.ai/blog/what-is-context-engineering-complete-guide/) | The four-moves framework |
+| [Epsilla — RAG is Dead](https://www.epsilla.com/blogs/karpathy-agentic-wiki-beyond-rag-enterprise-memory) | Why agentic wiki > embeddings-only RAG |
+
+### 🧰 Companion Harness Guides (if you use more than one)
+
+- [OpenClaw Optimization Guide](https://github.com/OnlyTerp/openclaw-optimization-guide)
+- [Hermes Optimization Guide](https://github.com/OnlyTerp/hermes-optimization-guide)
+
+### 🌍 Community
+
+- [Windsurf Discord](https://discord.gg/windsurf) — #help, #skills, #mcp
+- [r/windsurf](https://www.reddit.com/r/windsurf/) — discussion and show-and-tell
+- [Windsurf X (Twitter)](https://x.com/windsurf_ai) — official announcements
+- [Cognition blog](https://cognition.ai/blog) — SWE models, Devin, research
+
+> **Want to be on this list?** Open a PR. We accept one-resource-per-PR to keep reviews fast. Bar: top-tier, production-ready, accessible without corporate gating.
 
 ---
 
