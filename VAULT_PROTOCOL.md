@@ -199,19 +199,22 @@ Keep it skim-able. Group by category, one line per page:
 Last updated: 2026-04-17
 
 ## Decisions
-- [Use Redis for rate limiting](./decisions/2026-04-17-use-redis-for-rate-limiting.md) — Apr 17, 2026
+- [ADR-001 — Use Redis for rate limiting](./decisions/ADR-001-use-redis-for-rate-limiting.md) — Apr 17, 2026
 
-## Gotchas
-- [DynamoDB eventual consistency](./gotchas/dynamodb-eventual-consistency.md)
+## Services
+- [Auth API](./services/auth-api.md)
 
-## Runbooks
-- [How to rotate Stripe keys](./runbooks/how-to-rotate-stripe-keys.md)
+## Incidents
+- [Stripe webhook storm](./incidents/2026-04-17-stripe-webhook-storm.md)
 
-## Patterns
-- [Idempotency keys](./patterns/idempotency-keys.md)
+## Maps of Content
+- [Billing](./moc/billing.md)
+
+## People
+- [Alice](./people/alice.md)
 
 ## Glossary
-- [Project terms](./glossary/terms.md)
+- [Project terms](./glossary.md)
 ```
 
 ## Hook Integration (Auto-Capture)
