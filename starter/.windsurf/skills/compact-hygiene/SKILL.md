@@ -12,7 +12,7 @@ trigger: >
 
 Long sessions rot. Most users only run `/compact` when the warning light is already red — and by then the earliest (most foundational) context is already being summarized away. You run it proactively, with explicit preservation instructions.
 
-## When to Compact
+## When to Run
 
 - **Proactive (best):** at 50–60% context utilization, before the model starts approximating
 - **Pre-output:** right before a large tool output (big file read, long test run) you don't need to keep verbatim

@@ -16,7 +16,7 @@ trigger: >
 
 Structural code search. You understand code's abstract syntax tree, not just its text.
 
-## When to Use ast-grep vs ripgrep
+## When to Run
 
 | Task | Tool |
 |------|------|
