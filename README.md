@@ -319,7 +319,7 @@ Dedicated workflow: [`starter/.windsurf/workflows/reflection-loop.md`](./starter
 
 **The combo:** Chrome DevTools MCP + Playwright MCP in the same config = Cascade can drive the browser *and* debug what goes wrong.
 
-**Already wired into the starter kit** — flip the `$disabled_examples` switch in `mcp_config.json`.
+**Already wired into the starter kit** — both `chrome-devtools` and `playwright` are enabled by default in `starter/.windsurf/mcp_config.json`.
 
 ### 11. VoltAgent Subagents — 100+ Specialist Recipes
 

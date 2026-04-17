@@ -119,7 +119,7 @@ We chose **Option X** because ...
 
 ### Gotcha
 
-```markdown
+`````markdown
 # <Surprising Behavior>
 
 ## Symptom
@@ -135,7 +135,7 @@ One paragraph. The real reason, not the first thing you tried.
 
 ## Why We Can't Just Fix It Upstream
 (Optional.) If the root cause is in a library/service we don't own.
-```
+`````
 
 ### Runbook
 
@@ -162,7 +162,7 @@ If step N failed, do ...
 
 ### Pattern
 
-```markdown
+`````markdown
 # <Pattern Name>
 
 ## When to Use
@@ -182,7 +182,7 @@ If step N failed, do ...
 
 ## Trade-Offs
 - ...
-```
+`````
 
 ## INDEX.md Maintenance
 

@@ -93,12 +93,22 @@ if [[ $UPDATE -eq 0 ]]; then
 fi
 
 if [[ $UPDATE -eq 0 ]]; then
-  bold "installing AGENTS.md + vault/"
+  bold "installing AGENTS.md + vault/ + plans/ + templates/"
   copy_skip_if_exists "$STARTER_SRC/AGENTS.md" "AGENTS.md"
   if [[ ! -d "vault" ]]; then
     copy_tree "$STARTER_SRC/vault" "vault"
   else
     yellow "  skip vault/ (already exists)"
+  fi
+  if [[ -d "$STARTER_SRC/plans" ]]; then
+    if [[ ! -d "plans" ]]; then
+      copy_tree "$STARTER_SRC/plans" "plans"
+    else
+      yellow "  skip plans/ (already exists)"
+    fi
+  fi
+  if [[ -d "$STARTER_SRC/templates" ]]; then
+    copy_tree "$STARTER_SRC/templates" "templates"
   fi
 fi
 
