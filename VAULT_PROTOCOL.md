@@ -14,24 +14,27 @@ Paste the block below into your `AGENTS.md` (or append this whole file as `vault
 
 ## Directory Layout
 
+Matches [`starter/vault/`](./starter/vault) — if you installed via `install.sh`, this is already scaffolded.
+
 ```
 vault/
 ├── INDEX.md                 # Map of Contents — what's where
 ├── decisions/               # Architectural decision records (ADRs)
-│   └── 2026-04-17-use-redis-for-rate-limiting.md
-├── runbooks/                # How we do recurring things
-│   └── how-to-rotate-stripe-keys.md
-├── gotchas/                 # Non-obvious things that have burned us
-│   └── dynamodb-eventual-consistency.md
-├── patterns/                # Reusable code/design patterns
-│   └── idempotency-keys.md
-├── glossary/                # Project-specific vocabulary
-│   └── terms.md
-└── people/                  # Who does what (for multi-team repos)
-    └── teams.md
+│   └── ADR-001-use-redis-for-rate-limiting.md
+├── incidents/               # Postmortems — what broke, why, and the invariant we added
+│   └── 2026-04-17-stripe-webhook-storm.md
+├── services/                # One page per service/component — owners, runbooks, gotchas
+│   └── auth-api.md
+├── people/                  # Who owns what (for multi-team repos)
+│   └── alice.md
+├── moc/                     # Maps of Content — topic-level hubs that link related pages
+│   └── billing.md
+└── glossary.md              # Project-specific vocabulary (one file, not a directory)
 ```
 
-Every file is plain markdown, 20–150 lines. One topic per file. Title case slug.
+Every file is plain markdown, 20–150 lines. One topic per file. Title-case slug.
+
+The `wiki-update` skill in the starter kit writes to these exact paths — if you diverge (adding `runbooks/`, `gotchas/`, `patterns/`, etc.), update [`starter/.windsurf/skills/wiki-update/SKILL.md`](./starter/.windsurf/skills/wiki-update/SKILL.md) and `vault/INDEX.md` to match so agents don't write to directories that don't exist.
 
 ## The AGENTS.md Block (copy-paste)
 
@@ -58,11 +61,13 @@ first place you look and the last place you write.
 
 When the session produced a decision, solved a non-obvious problem, or established a pattern:
 
-1. Write a vault page. Location rules:
-   - Decisions (why we chose X over Y) → `vault/decisions/<YYYY-MM-DD>-<slug>.md`
-   - Recurring how-tos → `vault/runbooks/<slug>.md`
-   - Surprises that bit us → `vault/gotchas/<slug>.md`
-   - Code or design patterns we keep using → `vault/patterns/<slug>.md`
+1. Write a vault page. Location rules (match the directories that exist in this repo's `vault/`):
+   - Decisions (why we chose X over Y) → `vault/decisions/ADR-NNN-<slug>.md` (next sequential number)
+   - Postmortems → `vault/incidents/<YYYY-MM-DD>-<slug>.md`
+   - Service/component notes, runbooks, gotchas → `vault/services/<service>.md`
+   - Ownership → `vault/people/<name>.md`
+   - Cross-cutting topic hubs → `vault/moc/<topic>.md` (a "Map of Content" that links related pages)
+   - Glossary entries → append to `vault/glossary.md`
 2. Update `vault/INDEX.md` to link the new page.
 3. One page per topic. If a page grows > 150 lines, split it.
 

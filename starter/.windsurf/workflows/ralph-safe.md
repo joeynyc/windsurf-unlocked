@@ -48,7 +48,13 @@ git symbolic-ref --short HEAD | grep -Eqv '^(main|master|develop)$' \
 [ -z "$(git status --porcelain)" ] \
   || { echo "ralph refuses to run with a dirty worktree"; exit 1; }
 
-START_COST=$(windsurf billing usage --format=json | jq '.session_cost_usd')
+# `windsurf billing usage` is optional — if it fails or isn't installed we skip
+# the cost cap rather than aborting the whole loop. `set -e` + `pipefail` would
+# otherwise kill the script before any iteration runs.
+START_COST="$(windsurf billing usage --format=json 2>/dev/null | jq -r '.session_cost_usd // empty' 2>/dev/null || true)"
+if [ -z "$START_COST" ]; then
+  echo "⚠ cost cap disabled (windsurf billing usage unavailable)"
+fi
 
 for i in $(seq 1 "$MAX_ITERS"); do
   echo "── Iter $i/$MAX_ITERS ──"
@@ -60,12 +66,17 @@ for i in $(seq 1 "$MAX_ITERS"); do
     exit 2
   fi
 
-  # 2. Cost cap check
-  CURR_COST=$(windsurf billing usage --format=json | jq '.session_cost_usd')
-  SPENT=$(echo "$CURR_COST - $START_COST" | bc)
-  if (( $(echo "$SPENT > $COST_CAP_USD" | bc) )); then
-    echo "Cost cap hit: \$$SPENT > \$$COST_CAP_USD"
-    exit 3
+  # 2. Cost cap check (only when we have a baseline)
+  SPENT="0"
+  if [ -n "$START_COST" ]; then
+    CURR_COST="$(windsurf billing usage --format=json 2>/dev/null | jq -r '.session_cost_usd // empty' 2>/dev/null || true)"
+    if [ -n "$CURR_COST" ]; then
+      SPENT=$(echo "$CURR_COST - $START_COST" | bc)
+      if (( $(echo "$SPENT > $COST_CAP_USD" | bc) )); then
+        echo "Cost cap hit: \$$SPENT > \$$COST_CAP_USD"
+        exit 3
+      fi
+    fi
   fi
 
   # 3. Check: are we already green?

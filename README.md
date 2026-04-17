@@ -2308,6 +2308,7 @@ app.post("/webhooks/linear", async (req, res) => {
   await issue.createComment({ body: `## Plan\n${plan}\n\nReply with changes or mention me to start implementation.` });
 
   // (Optional) Implement phase — kicks off on explicit mention/comment
+  res.json({ ok: true });   // Linear retries if we don't ACK — must respond on every code path
 });
 
 function runCascade(args: string[]): Promise<string> {
