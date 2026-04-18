@@ -54,7 +54,8 @@ Takes ~30 seconds to install. Turns any project into a Cascade power-user enviro
     │   ├── ralph-safe.md             # Persistent loop with killswitch + cost cap
     │   ├── prd-driven.md             # Spec-first, anti-drift feature workflow
     │   ├── reflection-loop.md        # generate → evaluate → revise
-    │   └── visual-iteration.md       # Screenshot → describe → fix (Chrome DevTools MCP)
+    │   ├── visual-iteration.md       # Screenshot → describe → fix (Chrome DevTools MCP)
+    │   └── max-think.md              # Route task to Opus 4.7 Think — MAX tier
     └── mcp_config.json               # Curated server list (all Streamable HTTP)
 ```
 

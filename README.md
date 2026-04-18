@@ -52,7 +52,7 @@ Details and customization: [**starter/README.md**](./starter/README.md).
 - [**`VAULT_PROTOCOL.md`**](./VAULT_PROTOCOL.md) — drop-in AGENTS.md block for the Karpathy-style Agentic Wiki (compounding markdown memory that beats RAG for internal docs).
 - [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
 
-**Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 14 viral techniques with copy-paste recipes.
+**Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 15 viral techniques with copy-paste recipes, led by the Apr 16 [Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026) drop.
 
 If you only have 10 minutes, read [§17 Custom Subagents](#17-custom-subagents) and [§20 Context Engineering](#20-context-engineering--the-agentic-wiki), then install the starter kit. That's the 80% of the value.
 
@@ -98,6 +98,7 @@ Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosys
 
 | Drop / trend | Date | What it is | Where it lands |
 |---|---|---|---|
+| [**Claude Opus 4.7 + Windsurf thinking-level picker**](https://www.anthropic.com/news/claude-opus-4-7) | **Apr 16** | Anthropic's most capable GA model — 1M context, 128K output, high-res vision (2576px), better agentic coding. Windsurf added it to Cascade the same day with promo credit pricing **and** an explicit thinking-level selector (up to a MAX tier) — something the official Claude Code app no longer exposes since [`ultrathink` was deprecated Jan 16, 2026](https://decodeclaude.com/ultrathink-deprecated/). | [Power Move #0](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026), [§16 Model Optimization](#16-model-optimization--swe-16-adaptive-battle-groups) |
 | [**`gh skill` CLI**](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli) | **Apr 16** | New GitHub CLI command to discover / install / update / publish [`SKILL.md`](https://agentskills.io) skills across Copilot, Claude Code, Cursor, Codex, Gemini CLI — version-pinned, content-addressed, portable provenance. Drop into Windsurf's `.windsurf/skills/` with one flag. | [§22 Skills Ecosystem](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
 | [**mvanhorn/last30days-skill**](https://github.com/mvanhorn/last30days-skill) | GitHub Trending #1 Apr 16, 22k⭐ | Viral agent skill that searches Reddit / X / YouTube / HN / TikTok / Polymarket / GitHub in parallel and has an AI judge synthesize one brief. Ships installers for Claude Code, OpenClaw, Hermes. Works in Cascade with a two-line change. | [§22](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
 | [**Claude Code Subagents**](https://docs.anthropic.com/en/docs/claude-code/sub-agents) pattern | Exploded Apr 12–14 | `.claude/agents/*.md` per-role specialists with isolated context windows. Every competing tool is copying it. Cascade emulates via `.windsurf/agents/` + worktrees. | [§17 Custom Subagents](#17-custom-subagents) |
@@ -118,9 +119,79 @@ Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosys
 
 ## Unlocked Power Moves
 
-> The 14 techniques actually going viral on X / Reddit / YouTube right now that make people say **"wait, Cascade can do that?"** — each with evidence of real adoption and a copy-paste recipe. Every one is reproducible in Windsurf 2.0.50 today.
+> The 15 techniques actually going viral on X / Reddit / YouTube right now that make people say **"wait, Cascade can do that?"** — each with evidence of real adoption and a copy-paste recipe. Every one is reproducible in Windsurf 2.0.50 today.
 
-If you only do three of these, do **#1 Planning with Files**, **#2 Chrome DevTools MCP**, and **#5 `/compact` + preservation instructions**. They compound faster than anything else in this guide.
+If you only do three of these, do **[#0 Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026)**, **#1 Planning with Files**, and **#2 Chrome DevTools MCP**. They compound faster than anything else in this guide.
+
+### 0. Opus 4.7 + Thinking Levels — The Cascade-Only Unlock (Apr 16, 2026)
+
+**What it is:** Claude [**Opus 4.7**](https://www.anthropic.com/news/claude-opus-4-7) dropped Apr 16, 2026 — Anthropic's most capable generally available model, with stronger agentic coding, 1M-token context, 128K max output, high-resolution vision (2576px / 3.75MP, up from 1568px), and [**adaptive thinking**](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking) support. Windsurf added it to the Cascade model picker **the same day**, with **promo credit pricing** for self-serve and — the part Claude Code users can't touch — **an explicit thinking-level selector** with a MAX tier.
+
+**Why it's a wow (the Cascade-only part):** On Jan 16, 2026, Anthropic [deprecated the `ultrathink` keyword](https://decodeclaude.com/ultrathink-deprecated/) in the official Claude Code app. Extended thinking is now just "on by default" at the fixed 31,999-token budget — **you can't pick a level anymore**. Windsurf went the opposite direction: Cascade's picker lists the base model and the thinking variants as separate, credit-priced entries (same pattern Windsurf uses for [GPT-5.4's Low / Medium / High / **Extra High Reasoning**](https://www.windsurf.com/changelog) at 1x / 1x / 2x / 3x / **8x** credits, and for Opus 4.6 / 4.6 Think at 2x / 8x). That means on Windsurf, *you* decide when a task deserves maximum cognitive effort — not the model defaults.
+
+MAX thinking is the tier most people never notice exists. On a hard debugging session or an architecture decision, it feels closer to a human senior engineer chewing on the problem than a chatbot guessing. The trade-off is cost (highest credit multiplier) and latency (tens of seconds to first token), so you pick it deliberately.
+
+**When to pick which level** (Cascade "Think" variants follow the same tiering Windsurf established for GPT-5.4; exact names and multipliers live in the in-IDE picker since [Feb 2026](https://www.windsurf.com/changelog)):
+
+| Level | Use when | Skip when |
+|---|---|---|
+| **Opus 4.7** (base) | Agentic coding, multi-file refactors, long-horizon sessions | SWE 1.6 Fast handles it; you're on free tier; it's a 3-line change |
+| **Opus 4.7 Think — Low / Medium** | Tricky but bounded — a gnarly regex, a race condition, a subtle test failure | The problem is search-shaped, not reasoning-shaped — a wiki lookup would've answered it |
+| **Opus 4.7 Think — High** | Cross-system architecture, migration planning, security review, spec drafting | The task has <200 tokens of actual ambiguity — you're paying for thinking you won't use |
+| **Opus 4.7 Think — MAX** | Hardest 5% of your work: novel algorithms, distributed-systems bug hunts, gnarly data-model decisions | Anything the tier below can solve. MAX is for the problem you'd escalate to your most senior engineer. |
+
+**30-second setup:**
+
+1. Update Windsurf to **2.0.50+** (Apr 16, 2026 or later).
+2. In Cascade, open the model picker under the input box.
+3. **Pin** `Opus 4.7` and `Opus 4.7 Think` (and the MAX variant if surfaced separately in your plan) so they float to the top — see [§16 Pin Your Favorites](#pin-your-favorites).
+4. Check the in-picker **token-rate display** and **prompt-cache timer** ([Adaptive release notes](https://www.windsurf.com/changelog)) so you always see the live credit cost before you send.
+5. Optionally, create a one-file slash command for MAX mode (below).
+
+**Cascade prompt that demonstrates it:**
+
+```
+@reviewer + @architect, switch to Opus 4.7 Think — MAX.
+
+Read the last 48 hours of commits on this branch, the open plan in
+plans/, and the failing CI job. Produce a single-page root-cause
+analysis with (a) the top two hypotheses ranked by likelihood, (b)
+the smallest experiment that disambiguates them, and (c) the
+rollback plan if we ship the wrong fix.
+
+Take your time. I want the MAX-tier chain-of-thought, not a fast guess.
+```
+
+**Optional slash command** — `starter/.windsurf/workflows/max-think.md`:
+
+```yaml
+---
+name: max-think
+description: Route the next task to Opus 4.7 Think — MAX for deepest reasoning
+---
+
+# MAX Think Mode
+
+Use Opus 4.7 Think at the MAX tier for this task.
+
+- This is a high-stakes reasoning task — prefer correctness over speed
+- Produce 2–3 hypotheses before converging on one
+- Cite specific files/lines for every claim
+- If uncertainty is unresolvable, say so and stop — don't guess
+- Acceptable latency: up to 60s to first token
+```
+
+**Gotchas worth knowing:**
+
+- **New tokenizer = 35% more tokens per prompt.** Opus 4.7 ships with a new tokenizer that can tokenize the same English text into [up to ~35% more tokens](https://dev.to/devtorres_/opus-47-uses-35-more-tokens-than-46-heres-what-im-doing-about-it-2del) than Opus 4.6. Anthropic didn't raise the per-token sticker price ($5 / $25 per 1M), but your effective bill per prompt can go up even on identical work. Prompt caching claws most of that back — see [Power Move #12](#12-prompt-caching-breakpoints--engineer-for-90-token-savings).
+- **MAX isn't always better.** More thinking tokens = more cost and latency. On simple refactors, base Opus 4.7 (or SWE 1.6 Fast) often matches MAX at 1/8 the credits. Reserve MAX for genuinely hard reasoning.
+- **The promo window is short.** Windsurf's promo pricing on new models historically lasts 2–4 weeks. Check the in-picker rate display before assuming today's price is tomorrow's.
+- **Cybersecurity guardrails.** Opus 4.7 ships with Anthropic's new auto-detected cybersecurity safeguards (fallout from [Project Glasswing](https://www.anthropic.com/glasswing)). Legitimate pentest / red-team work may need the [Cyber Verification Program](https://www.anthropic.com/news/claude-opus-4-7).
+
+**Why Claude Code can't match this:** Extended thinking in CC is [on-by-default at a fixed budget](https://decodeclaude.com/ultrathink-deprecated/) with no UI to pick a level. The `MAX_THINKING_TOKENS` env-var hack unlocks 63,999 tokens but doesn't give you a per-message tiered picker. Cascade exposes the dial. That's the unlock.
+
+---
+
 
 ### 1. Planning with Files (Manus-Style) — The $2B Acquisition Pattern
 
@@ -402,7 +473,7 @@ Source: [0xandrewshu/ai-utils/rule-markdown-plan](https://github.com/0xandrewshu
 
 ---
 
-**All 14 are wired into the starter kit** — if you installed `starter/` already, most of the infrastructure is already there. The individual sections below go deeper on the features each move builds on.
+**All 15 are wired into the starter kit** — if you installed `starter/` already, most of the infrastructure is already there. The individual sections below go deeper on the features each move builds on.
 
 ---
 
@@ -430,7 +501,7 @@ Key things to know right now:
 
 ## Table of Contents
 
-0. [**Unlocked Power Moves**](#unlocked-power-moves) — The 14 techniques actually going viral right now, each with a copy-paste recipe
+0. [**Unlocked Power Moves**](#unlocked-power-moves) — The 15 techniques actually going viral right now, led by Opus 4.7 + MAX thinking (Apr 16, 2026) — each with a copy-paste recipe
 1. [Cascade Modes: Code / Plan / Ask](#1-cascade-modes-code--plan--ask) — When to use each, plan files, implement handoff
 2. [Agent Command Center & Spaces](#2-agent-command-center--spaces) — Multi-agent Kanban, task-level grouping, context inheritance
 3. [Devin in Windsurf — Cloud Delegation](#3-devin-in-windsurf--cloud-delegation) — When to hand off, planning workflow, pricing model
@@ -1752,8 +1823,11 @@ Every `fetch(` call gets rewritten with your pattern. Much cleaner than a regex 
 | **GPT-5.4** / **5.4 Mini** | Medium | Promo 1x / 2x / 3x / 8x | General purpose, big context |
 | **GPT-5.2-Codex** | Medium | — | Long sessions in huge codebases |
 | **Claude Sonnet 4.6** | Medium | 2x / 3x | Complex logic, debugging, sharp refactors |
+| **Claude Opus 4.7** (base) | Medium | Promo (check picker) | **New Apr 16, 2026** — Anthropic's most capable GA model; 1M context, 128K output, high-res vision. Default Opus choice for agentic coding. |
+| **Claude Opus 4.7 Think (Low / Medium / High / MAX)** | Slow→Very slow | Tiered credits (high multiplier at MAX) | Explicit thinking-level picker — pick the deepest tier only for the hardest 5% of work. See [Power Move #0](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026). |
 | **Claude Opus 4.6 (Fast)** | ~2.5x Opus speed | 10x / 12x | Heavy-duty reasoning, architecture |
 | **Claude Opus 4.6** | Slow | 2x / 3x | Same intelligence as fast mode, cheaper, slower |
+| **Claude Opus 4.6 Think** | Slow | 8x | Prior-gen thinking Opus — still great; pin if you need stable behavior while 4.7 is new |
 | **Gemini 3.1 Pro** (Low/High Thinking) | Fast | 0.5x / 1x | Strong on structured tasks, multimodal |
 | **Gemini 3 Flash** | Very fast | — | Pro-grade reasoning at Flash speed |
 | **GLM-5**, **Minimax M2.5** | Fast | 0.75x / 0.25x | Alternative frontier models for Arena comparison |
@@ -1772,6 +1846,20 @@ SWE 1.6 (April 7, 2026) is the new in-house frontier agentic coding model. Highl
 - **Free tier for 3 months** (via Fireworks at ~200 tok/s)
 
 Translation: **default to SWE 1.6 Fast** for everything except deep reasoning. The speed advantage compounds — one trajectory that used to take 30 seconds now takes 8, and Cascade makes fewer wasteful calls to boot.
+
+### Opus 4.7 Thinking Levels — The Cascade-Only Dial
+
+[Claude Opus 4.7](https://www.anthropic.com/news/claude-opus-4-7) (Apr 16, 2026) ships in Cascade with the same tiered picker Windsurf uses for other reasoning models: base + a thinking variant with **Low / Medium / High / MAX** levels. The base model is for agentic coding; the Think variants route more of the response budget through [adaptive thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking), at a higher credit multiplier.
+
+What makes this a Cascade unlock: the official Claude Code app [deprecated the `ultrathink` keyword on Jan 16, 2026](https://decodeclaude.com/ultrathink-deprecated/). Extended thinking is now on-by-default at a fixed 31,999-token budget, and you can't pick a level from the UI. Cascade's picker exposes the dial — so on Windsurf you can:
+
+- **Route most work to base Opus 4.7** or SWE 1.6 Fast (cheap, fast),
+- **Escalate tricky-but-bounded problems to Think Low/Medium**,
+- **Reserve MAX for the genuinely hard 5%** — architecture, security review, novel algorithms, gnarly debugging — where the 8×+ credit cost buys you reasoning you'd otherwise burn a senior engineer on.
+
+Full recipe with when-to-use-which table and an optional `/max-think` slash command: see [**Power Move #0**](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026).
+
+**Tokenizer caveat:** Opus 4.7's new tokenizer can tokenize the same English text into [up to ~35% more tokens](https://dev.to/devtorres_/opus-47-uses-35-more-tokens-than-46-heres-what-im-doing-about-it-2del) than Opus 4.6. Sticker price is unchanged ($5 / $25 per 1M), but effective bill per prompt can rise. Prompt caching claws most of that back — use it aggressively ([Power Move #12](#12-prompt-caching-breakpoints--engineer-for-90-token-savings)).
 
 ### Adaptive Model Router
 
