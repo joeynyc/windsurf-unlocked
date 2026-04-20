@@ -1518,9 +1518,11 @@ We ship a community-safe version as **[`SOUL.md`](./SOUL.md)** at the root of th
 **Install** (applies to every Windsurf project, forever):
 
 ```bash
+# awk filter strips the wrapper doc and keeps only the 5 rule pillars.
 mkdir -p ~/.codeium/windsurf/memories
 curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
-  -o ~/.codeium/windsurf/memories/global_rules.md
+  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' \
+  > ~/.codeium/windsurf/memories/global_rules.md
 ```
 
 Or paste into **Cascade Settings → Rules → Global Rules** via the UI. Full file and customization notes: **[`SOUL.md`](./SOUL.md)**.

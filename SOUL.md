@@ -78,9 +78,12 @@
 
 ```bash
 # Global rules file (applies to every Windsurf project)
+# awk filter strips the header, install instructions, and meta-sections,
+# leaving only the five rule pillars that belong in global_rules.md.
 mkdir -p ~/.codeium/windsurf/memories
 curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
-  -o ~/.codeium/windsurf/memories/global_rules.md
+  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' \
+  > ~/.codeium/windsurf/memories/global_rules.md
 ```
 
 Then in Cascade: **Settings → Cascade → Memories → Rescan** (or restart Windsurf).
@@ -94,7 +97,7 @@ Then in Cascade: **Settings → Cascade → Memories → Rescan** (or restart Wi
 1. **Core Identity & Vibe** — The single highest-leverage change. Default Cascade is RLHF-polished toward "helpful assistant"; it hedges, pads, and asks permission. This section overrides that so you get the senior-engineer tone by default.
 2. **Execution & Autonomy** — Fixes the #1 frustration with AI coding: "it built a thing and waited." Cascade will now fix-and-retry instead of reporting-and-waiting, and will surface gaps before claiming done.
 3. **Engineering Rigor & Validation** — The anti-vibe-coding layer. Replaces "looks good" with "here's the round-trip diff on real input." Pairs well with [§23 Observability](./README.md#23-observability--evals-for-cascade) and the `test-backfill` skill.
-4. **Speed, Context & Orchestration** — Forces parallelization and batched reads. On SWE 1.6 Fast, this alone can 3× throughput. Network timeouts prevent the classic "Cascade hangs on a stuck curl" failure mode.
+4. **Speed, Context & Orchestration** — Forces parallelization and batched reads, which materially increases throughput on SWE 1.6 Fast (community-reported). Network timeouts prevent the classic "Cascade hangs on a stuck curl" failure mode.
 5. **Workflows, Memory & Code** — Compounds value across sessions. Every non-trivial task turns into a reusable workflow; every task leaves a memory crumb; code changes inherit surrounding style automatically.
 
 ---
