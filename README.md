@@ -50,6 +50,7 @@ Details and customization: [**starter/README.md**](./starter/README.md).
 - [**`PROMPTS.md`**](./PROMPTS.md) — 60+ battle-tested Cascade prompts organized by phase (plan / implement / refactor / debug / test / review / security / perf / docs / ship / teach / meta / edge cases).
 - [**`BENCHMARKS.md`**](./BENCHMARKS.md) — open-source benchmark methodology + published vendor numbers + community-contributed real-world data. PR your numbers.
 - [**`VAULT_PROTOCOL.md`**](./VAULT_PROTOCOL.md) — drop-in AGENTS.md block for the Karpathy-style Agentic Wiki (compounding markdown memory that beats RAG for internal docs).
+- [**`SOUL.md`**](./SOUL.md) — the global-rules personality layer that turns Cascade from a polite assistant into an actual collaborator. Install via the one-liner in [§9 SOUL](#soul--the-global-rules-personality-layer) or paste the five rule pillars into `~/.codeium/windsurf/memories/global_rules.md`.
 - [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
 
 **Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 15 viral techniques with copy-paste recipes, led by the Apr 16 [Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026) drop.
@@ -1499,6 +1500,37 @@ Use named exports, not default exports.
 The `post_cascade_response` hook includes a `rules_applied` field — a list of memory/rule IDs that actually matched and shaped that response. Log it to see which rules are earning their keep and which are dead weight.
 
 If you have 40 rules and only 3 ever fire, the other 37 are burning context for no reason. Delete them.
+
+### SOUL — The Global-Rules Personality Layer
+
+The highest-leverage use of Rules is a **personality file** — a set of rules that tell Cascade *how to behave*, not just *what the project is*. Default Cascade is RLHF-polished toward "helpful assistant": it hedges, pads, asks permission, opens with "Great question!" A good personality file overrides all of that.
+
+We ship a community-safe version as **[`SOUL.md`](./SOUL.md)** at the root of this repo. Five sections:
+
+| Pillar | What it fixes |
+|---|---|
+| **1. Core Identity & Vibe** | No throat-clearing, no HR-speak, no "I'd be happy to help". Direct, opinionated, terse. |
+| **2. Execution & Autonomy** | Fix-and-retry instead of report-and-wait. Push back on bad premises. Surface gaps proactively. |
+| **3. Engineering Rigor & Validation** | "Looks good" banned. Round-trip diffs on real input. Per-stage metric breakdowns. |
+| **4. Speed, Context & Orchestration** | Parallelize by default. Batch reads. Timeouts on every network call. |
+| **5. Workflows, Memory & Code** | Every non-trivial task becomes a reusable workflow. One learning saved to memory per task. |
+
+**Install** (applies to every Windsurf project, forever):
+
+```bash
+# awk filter strips the wrapper doc and keeps only the 5 rule pillars.
+# Temp file + mv pattern preserves existing rules if curl fails.
+mkdir -p ~/.codeium/windsurf/memories
+tmp=$(mktemp) && \
+  curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
+  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' > "$tmp" \
+  && [ -s "$tmp" ] && mv "$tmp" ~/.codeium/windsurf/memories/global_rules.md \
+  || { rm -f "$tmp"; echo "Install failed — existing rules preserved."; }
+```
+
+Or paste into **Cascade Settings → Rules → Global Rules** via the UI. Full file and customization notes: **[`SOUL.md`](./SOUL.md)**.
+
+One file, zero per-project setup, measurable change in Cascade output within the first prompt. If you only install one thing from this guide, install this.
 
 ### Memories & Rules vs AGENTS.md
 
