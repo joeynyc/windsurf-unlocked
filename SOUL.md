@@ -77,13 +77,16 @@
 **Option B — File path:**
 
 ```bash
-# Global rules file (applies to every Windsurf project)
+# Global rules file (applies to every Windsurf project).
 # awk filter strips the header, install instructions, and meta-sections,
 # leaving only the five rule pillars that belong in global_rules.md.
+# Writes to a temp file first so a curl/network failure never wipes your existing rules.
 mkdir -p ~/.codeium/windsurf/memories
-curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
-  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' \
-  > ~/.codeium/windsurf/memories/global_rules.md
+tmp=$(mktemp) && \
+  curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
+  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' > "$tmp" \
+  && [ -s "$tmp" ] && mv "$tmp" ~/.codeium/windsurf/memories/global_rules.md \
+  || { rm -f "$tmp"; echo "Install failed — existing rules preserved."; }
 ```
 
 Then in Cascade: **Settings → Cascade → Memories → Rescan** (or restart Windsurf).

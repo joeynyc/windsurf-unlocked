@@ -50,7 +50,7 @@ Details and customization: [**starter/README.md**](./starter/README.md).
 - [**`PROMPTS.md`**](./PROMPTS.md) — 60+ battle-tested Cascade prompts organized by phase (plan / implement / refactor / debug / test / review / security / perf / docs / ship / teach / meta / edge cases).
 - [**`BENCHMARKS.md`**](./BENCHMARKS.md) — open-source benchmark methodology + published vendor numbers + community-contributed real-world data. PR your numbers.
 - [**`VAULT_PROTOCOL.md`**](./VAULT_PROTOCOL.md) — drop-in AGENTS.md block for the Karpathy-style Agentic Wiki (compounding markdown memory that beats RAG for internal docs).
-- [**`SOUL.md`**](./SOUL.md) — the global-rules personality layer that turns Cascade from a polite assistant into an actual collaborator. Paste into `~/.codeium/windsurf/memories/global_rules.md` and every session inherits it.
+- [**`SOUL.md`**](./SOUL.md) — the global-rules personality layer that turns Cascade from a polite assistant into an actual collaborator. Install via the one-liner in [§9 SOUL](#soul--the-global-rules-personality-layer) or paste the five rule pillars into `~/.codeium/windsurf/memories/global_rules.md`.
 - [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
 
 **Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 15 viral techniques with copy-paste recipes, led by the Apr 16 [Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels--the-cascade-only-unlock-apr-16-2026) drop.
@@ -1519,10 +1519,13 @@ We ship a community-safe version as **[`SOUL.md`](./SOUL.md)** at the root of th
 
 ```bash
 # awk filter strips the wrapper doc and keeps only the 5 rule pillars.
+# Temp file + mv pattern preserves existing rules if curl fails.
 mkdir -p ~/.codeium/windsurf/memories
-curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
-  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' \
-  > ~/.codeium/windsurf/memories/global_rules.md
+tmp=$(mktemp) && \
+  curl -fsSL https://raw.githubusercontent.com/OnlyTerp/windsurf-unlocked/main/SOUL.md \
+  | awk '/^## 1\. Core Identity/{p=1} /^## How to Install/{p=0} p' > "$tmp" \
+  && [ -s "$tmp" ] && mv "$tmp" ~/.codeium/windsurf/memories/global_rules.md \
+  || { rm -f "$tmp"; echo "Install failed — existing rules preserved."; }
 ```
 
 Or paste into **Cascade Settings → Rules → Global Rules** via the UI. Full file and customization notes: **[`SOUL.md`](./SOUL.md)**.
