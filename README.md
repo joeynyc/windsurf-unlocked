@@ -576,8 +576,7 @@ Promo rates shift — check the multiplier printed next to the model in your pic
 
 Download at [windsurf.com](https://windsurf.com) — available for Windows, Mac, and Linux. Linux ARM64 is now a first-class client as of Feb 2026 (deb + rpm).
 
-> **Get $10 in free credits** — use this referral link to sign up: **[windsurf.com/refer?referral_code=kowwopt506rq1907](https://windsurf.com/refer?referral_code=kowwopt506rq1907)**
-> You get $10 in credits, I get $10 in credits. Win-win.
+> Referral link (mutual Flex Credit bonus per [Windsurf's referral terms](https://windsurf.com/refer/terms-of-service); current amount published on [windsurf.com/refer](https://windsurf.com/refer)): [windsurf.com/refer?referral_code=kowwopt506rq1907](https://windsurf.com/refer?referral_code=kowwopt506rq1907)
 
 ### Plans & Pricing
 
