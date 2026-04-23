@@ -53,7 +53,7 @@ Details and customization: [**starter/README.md**](./starter/README.md).
 - [**`SOUL.md`**](./SOUL.md) — the global-rules personality layer that turns Cascade from a polite assistant into an actual collaborator. Install via the one-liner in [§9 SOUL](#soul--the-global-rules-personality-layer) or paste the five rule pillars into `~/.codeium/windsurf/memories/global_rules.md`.
 - [**`CONTRIBUTING.md`**](./CONTRIBUTING.md) — how to add prompts, skills, subagents, hooks, benchmarks, MCP servers, and translations.
 
-**Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 15 viral techniques with copy-paste recipes, led by the Apr 16 [Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026) drop.
+**Jump straight to the new stuff: [⚡ Unlocked Power Moves](#unlocked-power-moves)** — 16 viral techniques with copy-paste recipes, led by the Apr 16 [Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026) drop and the free-tier [Kimi K2 Swarm](#15-the-kimi-k2-free-swarm--6-parallel-agents-for-0).
 
 If you only have 10 minutes, read [§17 Custom Subagents](#17-custom-subagents) and [§20 Context Engineering](#20-context-engineering--the-agentic-wiki), then install the starter kit. That's the 80% of the value.
 
@@ -100,6 +100,7 @@ Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosys
 | Drop / trend | Date | What it is | Where it lands |
 |---|---|---|---|
 | [**Claude Opus 4.7 + Windsurf thinking-level picker**](https://www.anthropic.com/news/claude-opus-4-7) | **Apr 16** | Anthropic's most capable GA model — 1M context, 128K output, high-res vision (2576px), better agentic coding. Windsurf added it to Cascade the same day with promo credit pricing and each thinking tier exposed as a separate, credit-priced entry in the model picker — up to a MAX tier you can pick per-message without typing a keyword. Claude Code CLI exposes tiers via [`/effort` + `ultrathink` keywords](https://claudelog.com/faqs/what-is-ultrathink/); Anthropic's Cowork / Chat surfaces dropped the manual picker for [adaptive thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking). Cascade is the only harness that puts every tier in the picker with visible per-message credit cost. | [Power Move #0](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026), [§16 Model Optimization](#16-model-optimization--swe-16-adaptive-battle-groups) |
+| [**Kimi K2 in the Cascade picker — free/promo tier**](https://www.windsurf.com/changelog) | Jul 2025 → ongoing | Windsurf has shipped successive [low-credit](https://www.threads.com/@pahud/post/DMeZLopuyhb) and [free](https://www.theblockbeats.info/flash/337382) Kimi K2 entries since v1.11.1 (K2 at 0.5x credits) and [K2.5's 7-day free-to-all promo in March 2026](https://www.theblockbeats.info/flash/337382). [Kimi K2.6](https://aitoolsrecap.com/Blog/moonshot-ai-kimi-k2-6-release-coding-agent-benchmarks-2026) (Apr 20) tops SWE-Bench Pro at 58.6%, beating Opus 4.6 and GPT-5.4 at ~5× cheaper API list price. Pairs with Windsurf 2.0's split-pane Spaces into the **Kimi Swarm** — 6 parallel agents on one workspace for near-$0. Check your picker for the current multiplier. | [Power Move #15](#15-the-kimi-k2-free-swarm--6-parallel-agents-for-0), [§16 Model Optimization](#16-model-optimization--swe-16-adaptive-battle-groups) |
 | [**`gh skill` CLI**](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli) | **Apr 16** | New GitHub CLI command to discover / install / update / publish [`SKILL.md`](https://agentskills.io) skills across Copilot, Claude Code, Cursor, Codex, Gemini CLI — version-pinned, content-addressed, portable provenance. Drop into Windsurf's `.windsurf/skills/` with one flag. | [§22 Skills Ecosystem](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
 | [**mvanhorn/last30days-skill**](https://github.com/mvanhorn/last30days-skill) | GitHub Trending #1 Apr 16, 22k⭐ | Viral agent skill that searches Reddit / X / YouTube / HN / TikTok / Polymarket / GitHub in parallel and has an AI judge synthesize one brief. Ships installers for Claude Code, OpenClaw, Hermes. Works in Cascade with a two-line change. | [§22](#22-skills-ecosystem--gh-skill-agentskillsio-and-viral-skills) |
 | [**Claude Code Subagents**](https://docs.anthropic.com/en/docs/claude-code/sub-agents) pattern | Exploded Apr 12–14 | `.claude/agents/*.md` per-role specialists with isolated context windows. Every competing tool is copying it. Cascade emulates via `.windsurf/agents/` + worktrees. | [§17 Custom Subagents](#17-custom-subagents) |
@@ -486,7 +487,84 @@ Source: [0xandrewshu/ai-utils/rule-markdown-plan](https://github.com/0xandrewshu
 
 ---
 
-**All 15 are wired into the starter kit** — if you installed `starter/` already, most of the infrastructure is already there. The individual sections below go deeper on the features each move builds on.
+### 15. The Kimi K2 Free Swarm — 6 Parallel Agents for $0
+
+**What it is:** Open 6 Cascade sessions side-by-side in a single Windsurf workspace (Space), split your task into 6 disjoint subtasks, run all six on the [**Kimi K2**](https://aitoolsrecap.com/Blog/moonshot-ai-kimi-k2-6-release-coding-agent-benchmarks-2026) entry in the model picker — which Windsurf has shipped [at 0.5× credits since v1.11.1](https://www.threads.com/@pahud/post/DMeZLopuyhb) (July 2025) and [free-to-all during promo windows](https://www.theblockbeats.info/flash/337382) (e.g. K2.5's 7-day all-plans promo in March 2026). Six parallel trajectories finish in the time one would have taken — for near-zero incremental credits.
+
+**Why it's a wow:** Every other "N agents in parallel" pattern — Arena Mode (§12), Twill.ai, AgentBox, worktree fan-out — multiplies credits by N. This one is the only pattern where N costs roughly the same as 1. And [Kimi K2.6](https://kimi-k2.org/blog/24-kimi-k2-6-release) (Apr 20, 2026) isn't a toy model: it tops SWE-Bench Pro at [58.6%](https://aitoolsrecap.com/Blog/moonshot-ai-kimi-k2-6-release-coding-agent-benchmarks-2026), beating Opus 4.6 (53.4%) and GPT-5.4 (57.7%) on the benchmark closest to real GitHub issues, with open MIT-licensed weights and API list price ~5× cheaper than Claude Sonnet 4.6. The swarm pattern turns that into a compounding free-tier advantage inside Windsurf specifically — because only Windsurf 2.0's Spaces + split-pane UI lets you operate six sessions visually on one screen with shared project context.
+
+**30-second setup:**
+
+1. Open (or create) a Space for the task in the Agent Command Center — the six agents will inherit the Space's context automatically (see [§2](#2-agent-command-center--spaces))
+2. `Cmd/Ctrl+\` to split the Cascade pane; repeat until you have 6 panes (a 3×2 grid works best on a 27"+ display)
+3. In each pane, click **New Session** → select **Kimi K2** from the model picker (look for the free/promo entry — the multiplier is printed next to the model name)
+4. In pane 1, run the **swarm-split prompt** below to decompose your task into 6 disjoint subtasks (or use the `swarm-split` workflow that ships in the starter kit)
+5. Paste subtask 1 into pane 1, subtask 2 into pane 2, … — launch all six. Watch the grid.
+
+**The swarm-split prompt:**
+
+```
+Decompose the following task into exactly 6 independent, parallelizable subtasks.
+Each subtask must be runnable in isolation — no shared mutable state, no blocking
+dependencies, no overlapping file paths.
+
+Output format (one block per subtask):
+
+### Subtask N — <title>
+- Scope: <one file or directory, absolute path from repo root>
+- Acceptance: <one sentence; how to verify it's done>
+- Model hint: kimi-k2   # override only if a subtask genuinely needs deeper reasoning
+
+Rules:
+1. Each subtask touches a DISTINCT file path — no two subtasks modify the same file
+2. If two subtasks would conflict, collapse them into one or sequence them and reduce the count
+3. If the task genuinely cannot be split 6 ways, output fewer (3/4/5) and explain why in one line
+4. Do NOT invent subtasks to reach 6 — padding produces merge hell
+
+Task: <paste task here>
+```
+
+**Why it works:**
+
+- **Kimi K2 is strong at well-scoped, medium-complexity subtasks** — exactly what the split produces. The weakness most community reports flag (instruction-following on long multi-step prompts) goes away when each subtask is narrow. ([Kimi K2.6 release notes](https://kimi-k2.org/blog/24-kimi-k2-6-release))
+- **Path-disjoint subtasks mean zero merge conflicts** — you can accept all 6 diffs in sequence with no rebase drama
+- **A single Space means each session sees the same project-level context** without re-paying tokens for the setup
+- **The 3×2 pane grid is a live dashboard** — a stuck agent is visible in 2 seconds, faster than any scheduler you could write
+
+**When NOT to swarm:**
+
+- **Single-file refactors** — no split benefit; one agent is cheaper and cleaner
+- **Tightly-coupled subtasks** — schema + migration + services touching the same models is a sequential problem, not a parallel one
+- **Exploration / debugging** — one focused agent beats six parallel guesses
+- **Integration work** — you want context coherence end-to-end, not six parallel forks of it
+
+**Guardrails (community-reported, learned the hard way):**
+
+- **Prefer [Worktrees](#11-worktrees--parallel-cascade)** if there's any chance of path overlap — each agent in its own worktree, converge via normal git merge flow. Path disjointness via prompt is a rule, worktrees are a safety net.
+- **Name each session** after its subtask slug before you launch — six untitled Cascade sessions in the Command Center is unreadable within 3 minutes
+- **Review the split manifest** before launching. If the architect gives you overlapping scopes, re-prompt; don't paper over it by "being careful"
+- **Keep one human pane empty** as a spotter — use it to `@` the stuck agents, accept diffs, rescue failing ones. Seven panes, six working, one driving.
+- **Don't swarm on Opus 4.7 MAX or GPT-5.4 Extra High Reasoning** — the whole point is leveraging a free/low-credit tier. If every subtask genuinely needs MAX, you have the wrong task shape (see [Power Move #0](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026)).
+
+**Cost math (community-reported):**
+
+For a sprint-sized task split 6 ways (say: 6 new parallel endpoints, 6 test files, 6 small refactors across modules):
+
+| Model choice | Incremental credit cost |
+|---|---|
+| Opus 4.7 base × 6 | ~6× mid-tier credits |
+| SWE 1.6 Fast × 6 | ~6× low-credit (still drains quota) |
+| **Kimi K2 on current free/promo × 6** | **~$0** |
+
+Promo rates shift — check the multiplier printed next to the model in your picker before you launch. The pattern still works at 0.5× or 0.25×; the "free" variant is what makes it go viral.
+
+**Starter kit:** `starter/.windsurf/workflows/swarm-split.md` — a runnable workflow that generates the 6-way split, writes a `plans/<YYYY-MM-DD>-<slug>-swarm.md` manifest, and prints the per-pane launch order so you can paste subtasks in sequence without losing your place.
+
+**Cross-links:** [§2 Agent Command Center & Spaces](#2-agent-command-center--spaces), [§11 Worktrees & Parallel Cascade](#11-worktrees--parallel-cascade), [§12 Arena Mode](#12-arena-mode--side-by-side-models), [§16 Model Optimization](#16-model-optimization--swe-16-adaptive-battle-groups).
+
+---
+
+**All 16 are wired into the starter kit** — if you installed `starter/` already, most of the infrastructure is already there. The individual sections below go deeper on the features each move builds on.
 
 ---
 
@@ -514,7 +592,7 @@ Key things to know right now:
 
 ## Table of Contents
 
-0. [**Unlocked Power Moves**](#unlocked-power-moves) — The 15 techniques actually going viral right now, led by Opus 4.7 + MAX thinking (Apr 16, 2026) — each with a copy-paste recipe
+0. [**Unlocked Power Moves**](#unlocked-power-moves) — The 16 techniques actually going viral right now, led by Opus 4.7 + MAX thinking (Apr 16, 2026) and the free-tier Kimi K2 Swarm — each with a copy-paste recipe
 1. [Cascade Modes: Code / Plan / Ask](#1-cascade-modes-code--plan--ask) — When to use each, plan files, implement handoff
 2. [Agent Command Center & Spaces](#2-agent-command-center--spaces) — Multi-agent Kanban, task-level grouping, context inheritance
 3. [Devin in Windsurf — Cloud Delegation](#3-devin-in-windsurf--cloud-delegation) — When to hand off, planning workflow, pricing model
@@ -629,6 +707,8 @@ Every session is technically its own Space by default, even if you don't see it 
 ```
 
 Switching between Spaces is identical to switching tasks — except every task now has a **team of agents** inside it.
+
+> **🎯 The $0 Swarm pattern:** open 6 Cascade panes inside a single Space, point them all at the current free/promo [Kimi K2](#15-the-kimi-k2-free-swarm--6-parallel-agents-for-0) entry in the picker, hand each one a disjoint subtask. Six parallel trajectories, shared Space context, near-zero incremental credits. Full recipe in [Power Move #15](#15-the-kimi-k2-free-swarm--6-parallel-agents-for-0).
 
 ---
 
@@ -1869,6 +1949,7 @@ Every `fetch(` call gets rewritten with your pattern. Much cleaner than a regex 
 | **Claude Sonnet 4.6** | Medium | 2x / 3x | Complex logic, debugging, sharp refactors |
 | **Claude Opus 4.7** (base) | Medium | Promo (check picker) | **New Apr 16, 2026** — Anthropic's most capable GA model; 1M context, 128K output, high-res vision. Default Opus choice for agentic coding. |
 | **Claude Opus 4.7 Think (Low / Medium / High / MAX)** | Slow→Very slow | Tiered credits (high multiplier at MAX) | Explicit thinking-level picker — pick the deepest tier only for the hardest 5% of work. See [Power Move #0](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026). |
+| **Kimi K2 / K2.5 / [K2.6](https://aitoolsrecap.com/Blog/moonshot-ai-kimi-k2-6-release-coding-agent-benchmarks-2026)** | Fast | **Free / low-credit promo** (check picker) | Open-weights frontier from Moonshot — [58.6% SWE-Bench Pro](https://aitoolsrecap.com/Blog/moonshot-ai-kimi-k2-6-release-coding-agent-benchmarks-2026) on K2.6, beats Opus 4.6 and GPT-5.4 on coding at ~5× cheaper list price. Windsurf has kept Kimi K2 in the picker [at low or zero credits](https://www.threads.com/@pahud/post/DMeZLopuyhb) since v1.11.1 (July 2025) and periodically runs [free-to-all promos](https://www.theblockbeats.info/flash/337382). Ideal swarm model — see [Power Move #15](#15-the-kimi-k2-free-swarm--6-parallel-agents-for-0). |
 | **Claude Opus 4.6 (Fast)** | ~2.5x Opus speed | 10x / 12x | Heavy-duty reasoning, architecture |
 | **Claude Opus 4.6** | Slow | 2x / 3x | Same intelligence as fast mode, cheaper, slower |
 | **Claude Opus 4.6 Think** | Slow | 8x | Prior-gen thinking Opus — still great; pin if you need stable behavior while 4.7 is new |
