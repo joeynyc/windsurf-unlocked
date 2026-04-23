@@ -121,7 +121,7 @@ Even in the 72 hours since Windsurf 2.0 dropped, the broader agent/coding ecosys
 
 ## Unlocked Power Moves
 
-> The 15 techniques actually going viral on X / Reddit / YouTube right now that make people say **"wait, Cascade can do that?"** — each with evidence of real adoption and a copy-paste recipe. Every one is reproducible in Windsurf 2.0.50 today.
+> The 16 techniques actually going viral on X / Reddit / YouTube right now that make people say **"wait, Cascade can do that?"** — each with evidence of real adoption and a copy-paste recipe. Every one is reproducible in Windsurf 2.0.50 today.
 
 If you only do three of these, do **[#0 Opus 4.7 + Thinking Levels](#0-opus-47--thinking-levels-in-the-cascade-picker-apr-16-2026)**, **#1 Planning with Files**, and **#2 Chrome DevTools MCP**. They compound faster than anything else in this guide.
 
