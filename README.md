@@ -17,6 +17,8 @@
 
 **📖 [Main guide](#what-this-guide-covers) · 🚀 [Starter kit](./starter/README.md) · 💬 [Prompts](./PROMPTS.md) · 📊 [Benchmarks](./BENCHMARKS.md) · 🤝 [Contribute](./CONTRIBUTING.md)**
 
+> 🎁 **New to Windsurf? Get $10 in free credits** with this referral link: **[windsurf.com/refer?referral_code=kowwopt506rq1907](https://windsurf.com/refer?referral_code=kowwopt506rq1907)** — you get $10, I get $10. The whole guide is free; this is the only ask.
+
 ---
 
 ## 60-Second Quickstart
